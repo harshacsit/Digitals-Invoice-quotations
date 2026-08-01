@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reports · Bhimavaram Digitals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="reports">
+
+<div class="app-shell">
+  <div id="sidebar-placeholder"></div>
+
+  <main class="main">
+    <div id="topbar-placeholder"></div>
+
+    <div class="page">
+      <div class="page-head">
+        <div>
+          <div class="crumb">Bhimavaram Digitals <span class="breadcrumb-sep">/</span> Reports</div>
+          <h1>Reports</h1>
+        </div>
+      </div>
+
+      <!-- Report type + filters -->
+      <div class="card mb-3">
+        <div class="card-body">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+              <label class="form-label">Report Type</label>
+              <select class="form-select" id="reportType" onchange="switchReport()">
+                <option value="sales">Sales Summary</option>
+                <option value="customers">Customer-wise Revenue</option>
+                <option value="outstanding">Outstanding Payments</option>
+                <option value="screens">Screen Utilization</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">From</label>
+              <input type="date" class="form-control" value="2026-07-01">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">To</label>
+              <input type="date" class="form-control" value="2026-08-01">
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+              <button class="btn btn-primary flex-fill"><i class="bi bi-funnel"></i> Apply</button>
+              <button class="btn btn-amber" onclick="exportExcel()"><i class="bi bi-file-earmark-excel-fill"></i> Export Excel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-3">
+        <div class="col-lg-8">
+          <div class="card h-100">
+            <div class="card-header">Revenue by Service Type</div>
+            <div class="card-body"><canvas id="reportChart" height="120"></canvas></div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="card h-100">
+            <div class="card-header">Summary</div>
+            <div class="card-body">
+              <div class="d-flex justify-content-between py-2 border-bottom"><span class="text-muted">Total Revenue</span><span class="fw-semibold">₹18,42,500</span></div>
+              <div class="d-flex justify-content-between py-2 border-bottom"><span class="text-muted">Quotations Sent</span><span class="fw-semibold">33</span></div>
+              <div class="d-flex justify-content-between py-2 border-bottom"><span class="text-muted">Conversion Rate</span><span class="fw-semibold">84%</span></div>
+              <div class="d-flex justify-content-between py-2"><span class="text-muted">Avg. Deal Size</span><span class="fw-semibold">₹1,29,800</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span id="reportTableTitle">Sales Summary</span>
+          <span class="text-muted" style="font-size:12px;">01 Jul 2026 – 01 Aug 2026</span>
+        </div>
+        <div class="card-body">
+          <!-- BACKEND NOTE: GET api/reports.php?type=sales&from=..&to=.. -->
+          <table class="table table-modern datatable" id="reportTable">
+            <thead><tr><th>Date</th><th>Customer</th><th>Service</th><th>Quote #</th><th>Invoice #</th><th>Amount</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>28 Jul 2026</td><td>Nova Motors</td><td>Billboard</td><td>QT-1042</td><td>—</td><td>₹1,25,000</td><td><span class="badge-status st-pending">Pending</span></td></tr>
+              <tr><td>27 Jul 2026</td><td>Sunrise Retail</td><td>TV Display</td><td>QT-1041</td><td>INV-2211</td><td>₹68,500</td><td><span class="badge-status st-partial">Partial</span></td></tr>
+              <tr><td>25 Jul 2026</td><td>Prime Foods</td><td>Billboard</td><td>QT-1040</td><td>—</td><td>₹2,10,000</td><td><span class="badge-status st-rejected">Rejected</span></td></tr>
+              <tr><td>22 Jul 2026</td><td>Urban Tech</td><td>TV Display</td><td>QT-1039</td><td>INV-2208</td><td>₹95,000</td><td><span class="badge-status st-pending">Unpaid</span></td></tr>
+              <tr><td>02 Jun 2026</td><td>Nova Motors</td><td>TV Display</td><td>QT-0988</td><td>INV-2202</td><td>₹95,000</td><td><span class="badge-status st-overdue">Overdue</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+<script src="assets/js/layout.js"></script>
+<script src="assets/js/script.js"></script>
+<script>
+  new Chart(document.getElementById('reportChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Billboard','TV Display'],
+      datasets: [{ data: [1245000, 597500], backgroundColor: ['#12172B','#F2A93B'], borderRadius: 6, barPercentage: .5 }]
+    },
+    options: { indexAxis: 'y', plugins: { legend: { display:false } }, scales: { x: { grid:{color:'#F0F1F6'} } } }
+  });
+
+  function switchReport() {
+    const type = document.getElementById('reportType').value;
+    const titles = { sales:'Sales Summary', customers:'Customer-wise Revenue', outstanding:'Outstanding Payments', screens:'Screen Utilization' };
+    document.getElementById('reportTableTitle').textContent = titles[type];
+    /* BACKEND HOOK: fetch('api/reports.php?type='+type+'&from=..&to=..').then(r=>r.json()).then(renderTable); */
+  }
+
+  // Client-side Excel export of the visible report table using SheetJS.
+  // BACKEND NOTE: for large datasets, prefer a server-side export endpoint
+  // (api/reports.php?type=..&export=xlsx) that streams the file directly.
+  function exportExcel() {
+    const table = document.getElementById('reportTable');
+    const wb = XLSX.utils.table_to_book(table, { sheet: 'Report' });
+    const filename = (document.getElementById('reportTableTitle').textContent || 'report').replace(/\s+/g,'_') + '.xlsx';
+    XLSX.writeFile(wb, filename);
+  }
+</script>
+</body>
+</html>

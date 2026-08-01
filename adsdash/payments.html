@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payments · Bhimavaram Digitals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="payments">
+
+<div class="app-shell">
+  <div id="sidebar-placeholder"></div>
+
+  <main class="main">
+    <div id="topbar-placeholder"></div>
+
+    <div class="page">
+      <div class="page-head">
+        <div>
+          <div class="crumb">Bhimavaram Digitals <span class="breadcrumb-sep">/</span> Payments</div>
+          <h1>Payments</h1>
+        </div>
+        <button class="btn btn-amber" data-bs-toggle="modal" data-bs-target="#paymentModal"><i class="bi bi-plus-lg"></i> Record Payment</button>
+      </div>
+
+      <div class="row g-3 mb-3">
+        <div class="col-sm-4"><div class="stat-card c-green"><div class="stat-value">₹42.6L</div><div class="stat-label">Total collected (YTD)</div></div></div>
+        <div class="col-sm-4"><div class="stat-card"><div class="stat-value">₹4,86,200</div><div class="stat-label">Outstanding</div></div></div>
+        <div class="col-sm-4"><div class="stat-card c-red"><div class="stat-value">₹1,25,000</div><div class="stat-label">Overdue</div></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Payment History</div>
+        <div class="card-body">
+          <!-- BACKEND NOTE: GET api/payments.php → [{id,invoice_ref,customer,amount,method,date,recorded_by}] -->
+          <table class="table table-modern datatable">
+            <thead><tr><th>Payment #</th><th>Invoice</th><th>Customer</th><th>Amount</th><th>Method</th><th>Date</th><th>Recorded By</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="fw-semibold">PMT-3312</td><td>INV-2211</td>
+                <td class="d-flex align-items-center gap-2"><div class="row-avatar">SR</div>Sunrise Retail</td>
+                <td>₹34,250</td>
+                <td><span class="chip"><i class="bi bi-bank"></i> Bank Transfer</span></td>
+                <td>29 Jul 2026</td><td>Ravi Kumar</td>
+              </tr>
+              <tr>
+                <td class="fw-semibold">PMT-3301</td><td>INV-2044</td>
+                <td class="d-flex align-items-center gap-2"><div class="row-avatar">NM</div>Nova Motors</td>
+                <td>₹1,80,000</td>
+                <td><span class="chip"><i class="bi bi-bank"></i> Bank Transfer</span></td>
+                <td>20 Mar 2026</td><td>Ravi Kumar</td>
+              </tr>
+              <tr>
+                <td class="fw-semibold">PMT-3287</td><td>INV-1980</td>
+                <td class="d-flex align-items-center gap-2"><div class="row-avatar">PF</div>Prime Foods</td>
+                <td>₹58,000</td>
+                <td><span class="chip"><i class="bi bi-credit-card"></i> UPI</span></td>
+                <td>11 Feb 2026</td><td>Anjali Singh</td>
+              </tr>
+              <tr>
+                <td class="fw-semibold">PMT-3255</td><td>INV-1940</td>
+                <td class="d-flex align-items-center gap-2"><div class="row-avatar">UT</div>Urban Tech</td>
+                <td>₹95,000</td>
+                <td><span class="chip"><i class="bi bi-cash-stack"></i> Cheque</span></td>
+                <td>02 Jan 2026</td><td>Ravi Kumar</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal fade" id="paymentModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Record Payment</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <!-- BACKEND NOTE: POST api/payments.php — updates linked invoice status (paid/partial) -->
+      <form>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Invoice *</label>
+            <select class="form-select">
+              <option>INV-2211 — Sunrise Retail (Balance ₹34,250)</option>
+              <option>INV-2208 — Urban Tech (Balance ₹95,000)</option>
+              <option>INV-2202 — Nova Motors (Balance ₹1,25,000)</option>
+            </select>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3"><label class="form-label">Amount (₹) *</label><input type="number" class="form-control" placeholder="34250"></div>
+            <div class="col-md-6 mb-3"><label class="form-label">Date *</label><input type="date" class="form-control"></div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Payment Method *</label>
+            <select class="form-select"><option>Bank Transfer</option><option>UPI</option><option>Cheque</option><option>Cash</option><option>Card</option></select>
+          </div>
+          <div class="mb-1"><label class="form-label">Reference / Transaction ID</label><input type="text" class="form-control"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-soft" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Payment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+<script src="assets/js/layout.js"></script>
+<script src="assets/js/script.js"></script>
+</body>
+</html>

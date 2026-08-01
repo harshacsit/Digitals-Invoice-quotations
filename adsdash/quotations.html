@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quotations · Bhimavaram Digitals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="quotations">
+
+<div class="app-shell">
+  <div id="sidebar-placeholder"></div>
+
+  <main class="main">
+    <div id="topbar-placeholder"></div>
+
+    <div class="page">
+
+      <!-- ============ LIST VIEW ============ -->
+      <div id="listView">
+        <div class="page-head">
+          <div>
+            <div class="crumb">Bhimavaram Digitals <span class="breadcrumb-sep">/</span> Quotations</div>
+            <h1>Quotations</h1>
+          </div>
+          <button class="btn btn-amber" onclick="showWizard()"><i class="bi bi-plus-lg"></i> New Quotation</button>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-sm-4"><div class="stat-card"><div class="stat-value">27</div><div class="stat-label">Pending approval</div></div></div>
+          <div class="col-sm-4"><div class="stat-card c-green"><div class="stat-value">142</div><div class="stat-label">Approved (→ invoiced)</div></div></div>
+          <div class="col-sm-4"><div class="stat-card c-red"><div class="stat-value">19</div><div class="stat-label">Rejected this year</div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span>All Quotations</span>
+            <div class="d-flex gap-2">
+              <select class="form-select form-select-sm" style="width:auto;">
+                <option>All statuses</option>
+                <option>Pending</option>
+                <option>Approved</option>
+                <option>Rejected</option>
+              </select>
+            </div>
+          </div>
+          <div class="card-body">
+            <!-- BACKEND NOTE: GET api/quotations.php → [{id,customer,service,locations,amount,created_at,status}] -->
+            <table class="table table-modern datatable" id="quoteTable">
+              <thead><tr><th>Quote #</th><th>Customer</th><th>Service</th><th>Locations</th><th>Amount</th><th>Created</th><th>Status</th><th></th></tr></thead>
+              <tbody>
+                <tr>
+                  <td class="fw-semibold">QT-1042</td>
+                  <td class="d-flex align-items-center gap-2"><div class="row-avatar">NM</div>Nova Motors</td>
+                  <td>Billboard</td><td>Gachibowli Main Rd</td><td>₹1,25,000</td><td>28 Jul 2026</td>
+                  <td><span class="badge-status st-pending">Pending</span></td>
+                  <td class="text-end">
+                    <button class="action-icon" title="View" onclick="previewQuote()"><i class="bi bi-eye"></i></button>
+                    <button class="action-icon" title="Approve → Invoice" onclick="approveQuote('QT-1042')"><i class="bi bi-check-lg text-success"></i></button>
+                    <button class="action-icon" title="Reject & delete" onclick="rejectQuote('QT-1042')"><i class="bi bi-x-lg text-danger"></i></button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="fw-semibold">QT-1041</td>
+                  <td class="d-flex align-items-center gap-2"><div class="row-avatar">SR</div>Sunrise Retail</td>
+                  <td>TV Display</td><td>Phoenix Mall Screen 3</td><td>₹68,500</td><td>27 Jul 2026</td>
+                  <td><span class="badge-status st-approved">Approved</span></td>
+                  <td class="text-end">
+                    <button class="action-icon" title="View" onclick="previewQuote()"><i class="bi bi-eye"></i></button>
+                    <a href="invoices.html" class="action-icon" title="View invoice"><i class="bi bi-receipt"></i></a>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="fw-semibold">QT-1040</td>
+                  <td class="d-flex align-items-center gap-2"><div class="row-avatar">PF</div>Prime Foods</td>
+                  <td>Billboard</td><td>Outer Ring Rd, Exit 12</td><td>₹2,10,000</td><td>25 Jul 2026</td>
+                  <td><span class="badge-status st-rejected">Rejected</span></td>
+                  <td class="text-end">
+                    <button class="action-icon" title="View" onclick="previewQuote()"><i class="bi bi-eye"></i></button>
+                    <button class="action-icon" title="Regenerate" onclick="showWizard()"><i class="bi bi-arrow-clockwise"></i></button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="fw-semibold">QT-1039</td>
+                  <td class="d-flex align-items-center gap-2"><div class="row-avatar">UT</div>Urban Tech</td>
+                  <td>TV Display</td><td>Forum Mall Screen 1</td><td>₹95,000</td><td>22 Jul 2026</td>
+                  <td><span class="badge-status st-approved">Approved</span></td>
+                  <td class="text-end">
+                    <button class="action-icon" title="View" onclick="previewQuote()"><i class="bi bi-eye"></i></button>
+                    <a href="invoices.html" class="action-icon" title="View invoice"><i class="bi bi-receipt"></i></a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ WIZARD VIEW (New / Regenerate Quotation) ============ -->
+      <div id="wizardView" style="display:none;">
+        <div class="page-head">
+          <div>
+            <div class="crumb"><a href="#" onclick="showList();return false;" class="text-decoration-none text-muted">Quotations</a> <span class="breadcrumb-sep">/</span> New</div>
+            <h1>Generate Quotation</h1>
+          </div>
+          <button class="btn btn-outline-soft" onclick="showList()"><i class="bi bi-x-lg"></i> Cancel</button>
+        </div>
+
+        <ul class="wizard-steps">
+          <li class="active" id="step-tab-1"><span class="num">1</span>Customer & Service</li>
+          <li id="step-tab-2"><span class="num">2</span>Locations & Screens</li>
+          <li id="step-tab-3"><span class="num">3</span>Pricing Package</li>
+          <li id="step-tab-4"><span class="num">4</span>Review & Generate</li>
+        </ul>
+
+        <div class="card">
+          <div class="card-body">
+
+            <!-- Step 1 -->
+            <div class="wizard-step" id="step-1">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Customer *</label>
+                  <select class="form-select">
+                    <option>Nova Motors</option>
+                    <option>Sunrise Retail</option>
+                    <option>Prime Foods</option>
+                    <option>Urban Tech</option>
+                    <option value="">+ New customer…</option>
+                  </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Requirement Type *</label>
+                  <select class="form-select">
+                    <option>New campaign</option>
+                    <option>Renewal</option>
+                    <option>Upgrade / add screens</option>
+                  </select>
+                </div>
+              </div>
+              <label class="form-label">Select Advertising Service *</label>
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <input type="radio" class="btn-check" name="service" id="svc-billboard" checked>
+                  <label class="btn btn-outline-soft w-100 text-start py-3" for="svc-billboard">
+                    <i class="bi bi-signpost-2-fill fs-4 me-2"></i><strong>Billboard</strong>
+                    <div class="text-muted" style="font-size:12px;">Static / digital outdoor hoardings</div>
+                  </label>
+                </div>
+                <div class="col-md-6">
+                  <input type="radio" class="btn-check" name="service" id="svc-tv">
+                  <label class="btn btn-outline-soft w-100 text-start py-3" for="svc-tv">
+                    <i class="bi bi-display fs-4 me-2"></i><strong>TV Display</strong>
+                    <div class="text-muted" style="font-size:12px;">Indoor / mall / lobby screens</div>
+                  </label>
+                </div>
+              </div>
+              <label class="form-label">Requirement Notes</label>
+              <textarea class="form-control" rows="3" placeholder="Duration, target audience, creative specs, etc."></textarea>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="wizard-step" id="step-2" style="display:none;">
+              <label class="form-label">Choose Locations & Screens *</label>
+              <p class="text-muted" style="font-size:12.5px;">Pulled live from the Screens inventory — only <strong>Available</strong> screens can be selected. <a href="screens.html">Manage inventory →</a></p>
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <div class="card">
+                    <div class="card-body">
+                      <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" checked id="scr1">
+                        <label class="form-check-label fw-semibold" for="scr1">Gachibowli Main Rd</label>
+                      </div>
+                      <div class="text-muted" style="font-size:12px;">Billboard · 40×20 ft · Hyderabad</div>
+                      <div class="chip mt-2">₹85,000 / month</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="card">
+                    <div class="card-body">
+                      <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="scr2">
+                        <label class="form-check-label fw-semibold" for="scr2">Hitec City Junction</label>
+                      </div>
+                      <div class="text-muted" style="font-size:12px;">Billboard · 30×15 ft · Hyderabad</div>
+                      <div class="chip mt-2">₹65,000 / month</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="card">
+                    <div class="card-body">
+                      <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="scr3">
+                        <label class="form-check-label fw-semibold" for="scr3">Kondapur Signal</label>
+                      </div>
+                      <div class="text-muted" style="font-size:12px;">Billboard · 25×12 ft · Hyderabad</div>
+                      <div class="chip mt-2">₹42,000 / month</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="wizard-step" id="step-3" style="display:none;">
+              <label class="form-label">Select Pricing Package *</label>
+              <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                  <input type="radio" class="btn-check" name="pkg" id="pkg-1">
+                  <label class="btn btn-outline-soft w-100 text-start py-3" for="pkg-1">
+                    <strong>1 Month</strong><div class="text-muted" style="font-size:12px;">Standard rate, no discount</div>
+                  </label>
+                </div>
+                <div class="col-md-4">
+                  <input type="radio" class="btn-check" name="pkg" id="pkg-2" checked>
+                  <label class="btn btn-outline-soft w-100 text-start py-3" for="pkg-2">
+                    <strong>3 Months</strong><div class="text-muted" style="font-size:12px;">10% discount applied</div>
+                  </label>
+                </div>
+                <div class="col-md-4">
+                  <input type="radio" class="btn-check" name="pkg" id="pkg-3">
+                  <label class="btn btn-outline-soft w-100 text-start py-3" for="pkg-3">
+                    <strong>12 Months</strong><div class="text-muted" style="font-size:12px;">20% discount applied</div>
+                  </label>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-4 mb-3"><label class="form-label">Discount (%)</label><input type="number" class="form-control" value="10"></div>
+                <div class="col-md-4 mb-3"><label class="form-label">Tax / GST (%)</label><input type="number" class="form-control" value="18"></div>
+                <div class="col-md-4 mb-3"><label class="form-label">Installation Charges (₹)</label><input type="number" class="form-control" value="5000"></div>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="wizard-step" id="step-4" style="display:none;">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                  <h5 class="mb-0">Quotation Preview</h5>
+                  <div class="text-muted" style="font-size:12.5px;">QT-1043 · Nova Motors · Generated 01 Aug 2026</div>
+                </div>
+                <span class="badge-status st-draft">Draft</span>
+              </div>
+              <table class="table table-modern mb-3">
+                <thead><tr><th>Item</th><th>Duration</th><th>Rate</th><th>Amount</th></tr></thead>
+                <tbody>
+                  <tr><td>Billboard — Gachibowli Main Rd</td><td>3 months</td><td>₹85,000/mo</td><td>₹2,55,000</td></tr>
+                </tbody>
+                <tfoot>
+                  <tr><td colspan="3" class="text-end text-muted">Discount (10%)</td><td>-₹25,500</td></tr>
+                  <tr><td colspan="3" class="text-end text-muted">Installation</td><td>₹5,000</td></tr>
+                  <tr><td colspan="3" class="text-end text-muted">GST (18%)</td><td>₹41,850</td></tr>
+                  <tr><td colspan="3" class="text-end fw-bold">Total Payable</td><td class="fw-bold">₹2,74,850</td></tr>
+                </tfoot>
+              </table>
+              <div class="alert" style="background:var(--blue-light);border:1px solid #BFDBFE;color:#1E40AF;font-size:13px;">
+                <i class="bi bi-shield-lock-fill me-1"></i> <strong>Owner Approval Workflow:</strong> Once generated, share this Quotation with the customer. After customer confirmation, the <strong>Owner/Manager manually approves</strong> the quotation to automatically generate the Invoice.
+              </div>
+            </div>
+
+          </div>
+          <div class="card-footer d-flex justify-content-between bg-transparent" style="border-top:1px solid var(--border);padding:16px 20px;">
+            <button class="btn btn-outline-soft" id="btnBack" onclick="wizardBack()" style="visibility:hidden;"><i class="bi bi-arrow-left"></i> Back</button>
+            <div class="d-flex gap-2">
+              <button class="btn btn-primary" id="btnNext" onclick="wizardNext()">Next <i class="bi bi-arrow-right"></i></button>
+              <button class="btn btn-primary" id="btnGenerate" style="display:none;" onclick="generatePdf()"><i class="bi bi-file-earmark-pdf-fill"></i> Save & Generate Quotation</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Post-generation actions -->
+        <div class="card mt-3" id="postGenActions" style="display:none;">
+          <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="text-muted" style="font-size:13px;"><i class="bi bi-clock-history text-primary me-1"></i> Quotation generated (Pending Owner Approval).</div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-soft"><i class="bi bi-download"></i> Download PDF</button>
+              <button class="btn" style="background:var(--red-light);color:#C0392B;border:1px solid #F3C7C7;" onclick="rejectQuote('QT-1043')"><i class="bi bi-x-lg"></i> Reject</button>
+              <button class="btn btn-primary" onclick="approveQuote('QT-1043')"><i class="bi bi-check-lg"></i> Manual Owner Approval → Generate Invoice</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- Quick preview modal -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">QT-1042 — Nova Motors</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <table class="table table-modern">
+          <thead><tr><th>Item</th><th>Duration</th><th>Rate</th><th>Amount</th></tr></thead>
+          <tbody><tr><td>Billboard — Gachibowli Main Rd</td><td>3 months</td><td>₹85,000/mo</td><td>₹2,55,000</td></tr></tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-soft" data-bs-dismiss="modal">Close</button>
+        <button class="btn btn-primary"><i class="bi bi-download"></i> Download PDF</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/layout.js"></script>
+<script src="assets/js/script.js"></script>
+<script>
+  let currentStep = 1;
+  function showWizard(){ document.getElementById('listView').style.display='none'; document.getElementById('wizardView').style.display='block'; goToStep(1); }
+  function showList(){ document.getElementById('wizardView').style.display='none'; document.getElementById('listView').style.display='block'; }
+
+  function goToStep(n){
+    currentStep = n;
+    for (let i=1;i<=4;i++){
+      document.getElementById('step-'+i).style.display = (i===n) ? 'block' : 'none';
+      const tab = document.getElementById('step-tab-'+i);
+      tab.classList.remove('active','done');
+      if (i < n) tab.classList.add('done');
+      if (i === n) tab.classList.add('active');
+    }
+    document.getElementById('btnBack').style.visibility = (n===1) ? 'hidden' : 'visible';
+    document.getElementById('btnNext').style.display = (n===4) ? 'none' : 'inline-block';
+    document.getElementById('btnGenerate').style.display = (n===4) ? 'inline-block' : 'none';
+    document.getElementById('postGenActions').style.display = 'none';
+  }
+  function wizardNext(){ if (currentStep < 4) goToStep(currentStep+1); }
+  function wizardBack(){ if (currentStep > 1) goToStep(currentStep-1); }
+
+  function generatePdf(){
+    /* BACKEND HOOK:
+      fetch('api/quotations.php', {method:'POST', body: JSON.stringify(wizardPayload)})
+        .then(r=>r.json()).then(res => { window.open(res.pdf_url, '_blank'); });
+    */
+    document.getElementById('postGenActions').style.display = 'block';
+  }
+
+  function approveQuote(id){
+    if (!confirmAction('Approve ' + id + ' and convert it to an invoice?')) return;
+    /* BACKEND HOOK: POST api/quotations.php?id=..&action=approve  → creates linked invoice */
+    window.location.href = 'invoices.html';
+  }
+  function rejectQuote(id){
+    if (!confirmAction('Reject ' + id + '? You can immediately edit and regenerate it below instead of creating a new quotation.')) return;
+    /* BACKEND HOOK: POST api/quotations.php?id=..&action=reject (soft-deletes old draft) */
+    showWizard();
+  }
+  function previewQuote(){ new bootstrap.Modal(document.getElementById('previewModal')).show(); }
+
+  // Auto-open wizard if navigated here with ?new=1
+  if (new URLSearchParams(window.location.search).get('new') === '1') {
+    document.addEventListener('adsdash:layoutReady', showWizard);
+  }
+</script>
+</body>
+</html>
