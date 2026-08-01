@@ -1,4 +1,4 @@
-# AdsDash — Frontend (HTML / CSS / JS)
+#Dashboard— Frontend (HTML / CSS / JS)
 
 Pure static frontend — no build step, no framework. Bootstrap 5 + vanilla JS +
 jQuery/DataTables (tables) + Chart.js (charts) + SheetJS (Excel export), all via CDN.
