@@ -1,4 +1,4 @@
-# AdsDash — Frontend (HTML / CSS / JS)
+#Dashboard— Frontend (HTML / CSS / JS)
 
 Pure static frontend — no build step, no framework. Bootstrap 5 + vanilla JS +
 jQuery/DataTables (tables) + Chart.js (charts) + SheetJS (Excel export), all via CDN.
@@ -48,6 +48,14 @@ build these endpoints (JSON in, JSON out) and call them from the marked spots:
 | `api/reports.php?type=..&from=..&to=..` | reports.html |
 | `api/users.php` | users.html |
 | `api/settings.php` | settings.html |
+
+### API Connector (`assets/js/api.js`)
+All API calls are wrapped inside `assets/js/api.js` (available globally as `window.AdsDashAPI`). Backend developers can update `API_CONFIG.API_BASE_URL` in `api.js` to point to their REST API.
+
+## Frontend & UI Features
+- **Smooth Page Transitions**: Page navigation includes smooth CSS fade/slide effects without jarring screen reloads.
+- **Clean Sidebar**: The sidebar scrollbar is hidden (`scrollbar-width: none`), keeping a clean minimalist look while retaining full scrolling capability.
+- **Responsive Mobile Toggle**: Clicking the sidebar toggle smooth-slides the menu with a backdrop blur overlay on mobile viewports.
 
 ## Business workflow this maps to
 Lead/Enquiry → **Customers** (register) → **Quotations** (select service →

@@ -6,13 +6,19 @@
   </div>
   <div class="ms-auto d-flex align-items-center gap-2">
     <a href="quotations.html?new=1" class="btn btn-amber btn-sm px-3"><i class="bi bi-plus-lg"></i> New Quotation</a>
-    <button class="icon-btn"><i class="bi bi-bell-fill"></i><span class="dot"></span></button>
-    <div class="user-chip">
-      <div class="avatar" id="userAvatar">RK</div>
-      <div class="d-none d-md-block">
-        <div style="font-size:13px;font-weight:600;line-height:1.1;" id="userName">Ravi Kumar</div>
-        <div class="role" id="userRole">Sales Manager</div>
+    <div class="dropdown">
+      <div class="user-chip dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="cursor:pointer;">
+        <div class="avatar" id="userAvatar">AD</div>
+        <div class="d-none d-md-block">
+          <div style="font-size:13px;font-weight:600;line-height:1.1;" id="userName">Loading...</div>
+          <div class="role" id="userRole">...</div>
+        </div>
       </div>
+      <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="userDropdown" style="font-size:13px;">
+        <li><a class="dropdown-item" href="users.html"><i class="bi bi-person-circle me-2"></i> Profile & Users</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><button class="dropdown-item text-danger" id="topbarLogoutBtn" onclick="window.api ? window.api.logout() : null"><i class="bi bi-box-arrow-right me-2"></i> Sign Out</button></li>
+      </ul>
     </div>
   </div>
 </header>

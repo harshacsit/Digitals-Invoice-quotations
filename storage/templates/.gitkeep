@@ -1,0 +1,2 @@
+# This directory stores uploaded custom PDF templates (quotation / invoice).
+# Files placed here by api/settings.php?action=upload_template

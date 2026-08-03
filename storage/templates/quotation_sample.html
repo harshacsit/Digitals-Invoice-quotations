@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quotation Template</title>
+    <style>
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333; margin: 0; padding: 30px; }
+        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #2563EB; padding-bottom: 15px; margin-bottom: 30px; }
+        .brand { font-size: 24px; font-weight: bold; color: #1E3A5F; }
+        .title { font-size: 20px; font-weight: bold; color: #2563EB; text-align: right; }
+        .details-container { display: flex; justify-content: space-between; margin-bottom: 30px; }
+        .bill-to, .meta-info { width: 48%; padding: 15px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; box-sizing: border-box; }
+        .heading { font-weight: bold; color: #2563EB; margin-bottom: 10px; font-size: 14px; text-transform: uppercase; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        th { background: #2563EB; color: #fff; padding: 10px; text-align: left; font-size: 13px; }
+        td { padding: 10px; border-bottom: 1px solid #E2E8F0; font-size: 13px; }
+        .text-right { text-align: right; }
+        .totals-container { display: flex; justify-content: flex-end; margin-bottom: 40px; }
+        .totals-table { width: 40%; }
+        .totals-table td { padding: 6px 10px; border: 0; }
+        .totals-table tr.grand-total td { font-weight: bold; font-size: 15px; background: #2563EB; color: #fff; border-radius: 4px; }
+        .footer { border-top: 1px solid #E2E8F0; padding-top: 15px; margin-top: 50px; font-size: 11px; color: #64748B; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <div class="brand">Bhimavaram Digitals</div>
+            <div style="font-size: 12px; color: #64748B;">Media Screening & Billboard Advertising</div>
+        </div>
+        <div class="title">QUOTATION</div>
+    </div>
+
+    <div class="details-container">
+        <div class="bill-to">
+            <div class="heading">Customer Details</div>
+            <strong>{{company_name}}</strong><br>
+            Contact: {{contact_person}}<br>
+            Phone: {{customer_phone}}<br>
+            Email: {{customer_email}}
+        </div>
+        <div class="meta-info">
+            <div class="heading">Quotation Info</div>
+            <strong>Quotation No:</strong> {{quotation_number}}<br>
+            <strong>Date:</strong> {{quotation_date}}<br>
+            <strong>Valid Until:</strong> {{valid_until}}<br>
+            <strong>Status:</strong> {{status}}
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Item / Space Description</th>
+                <th>Type</th>
+                <th class="text-right">Qty</th>
+                <th class="text-right">Duration</th>
+                <th class="text-right">Rate</th>
+                <th class="text-right">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>Phoenix Mall Center LED Video Wall</td>
+                <td>LED Video Wall</td>
+                <td class="text-right">1</td>
+                <td class="text-right">3 mo</td>
+                <td class="text-right">Rs. 50,000.00</td>
+                <td class="text-right">Rs. 150,000.00</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="totals-container">
+        <table class="totals-table">
+            <tr>
+                <td>Subtotal:</td>
+                <td class="text-right">Rs. 150,000.00</td>
+            </tr>
+            <tr>
+                <td>Discount:</td>
+                <td class="text-right">-Rs. 15,000.00</td>
+            </tr>
+            <tr>
+                <td>GST Taxes:</td>
+                <td class="text-right">Rs. 24,300.00</td>
+            </tr>
+            <tr class="grand-total">
+                <td>Total Amount:</td>
+                <td class="text-right">Rs. 159,300.00</td>
+            </tr>
+        </table>
+    </div>
+
+    <div style="font-size: 12px; color: #475569; margin-top: 30px;">
+        <strong>Terms & Conditions & Notes:</strong><br>
+        1. 50% advance payment. 2. Subject to Bhimavaram jurisdiction.
+    </div>
+
+    <div class="footer">
+        This is a computer-generated document and does not require a physical signature.
+    </div>
+</body>
+</html>

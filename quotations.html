@@ -3,12 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quotations · AdsDash</title>
+<title>Quotations · Bhimavaram Digitals</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body data-page="quotations">
@@ -25,83 +24,50 @@
       <div id="listView">
         <div class="page-head">
           <div>
-            <div class="crumb">AdsDash <span class="breadcrumb-sep">/</span> Quotations</div>
+            <div class="crumb">Bhimavaram Digitals <span class="breadcrumb-sep">/</span> Quotations</div>
             <h1>Quotations</h1>
           </div>
           <button class="btn btn-amber" onclick="showWizard()"><i class="bi bi-plus-lg"></i> New Quotation</button>
         </div>
 
         <div class="row g-3 mb-3">
-          <div class="col-sm-4"><div class="stat-card"><div class="stat-value">27</div><div class="stat-label">Pending approval</div></div></div>
-          <div class="col-sm-4"><div class="stat-card c-green"><div class="stat-value">142</div><div class="stat-label">Approved (→ invoiced)</div></div></div>
-          <div class="col-sm-4"><div class="stat-card c-red"><div class="stat-value">19</div><div class="stat-label">Rejected this year</div></div></div>
+          <div class="col-sm-4"><div class="stat-card"><div class="stat-value" id="statPendingQuotations">0</div><div class="stat-label">Pending approval</div></div></div>
+          <div class="col-sm-4"><div class="stat-card c-green"><div class="stat-value" id="statApprovedQuotations">0</div><div class="stat-label">Approved & Converted</div></div></div>
+          <div class="col-sm-4"><div class="stat-card c-red"><div class="stat-value" id="statRejectedQuotations">0</div><div class="stat-label">Rejected</div></div></div>
         </div>
 
         <div class="card">
           <div class="card-header d-flex justify-content-between align-items-center">
             <span>All Quotations</span>
-            <div class="d-flex gap-2">
-              <select class="form-select form-select-sm" style="width:auto;">
-                <option>All statuses</option>
-                <option>Pending</option>
-                <option>Approved</option>
-                <option>Rejected</option>
+            <div class="d-flex gap-2 align-items-center">
+              <select class="form-select form-select-sm" id="filterStatus" style="width:auto;" onchange="loadQuotations()">
+                <option value="">All statuses</option>
+                <option value="draft">Draft</option>
+                <option value="pending_approval">Pending Approval</option>
+                <option value="approved">Approved</option>
+                <option value="converted">Converted</option>
+                <option value="rejected">Rejected</option>
               </select>
+              <div class="input-group input-group-sm" style="width:200px;">
+                <input type="text" class="form-control" placeholder="Search..." id="quoteSearchInput" onkeyup="if(event.key==='Enter') loadQuotations()">
+                <button class="btn btn-outline-secondary" type="button" onclick="loadQuotations()"><i class="bi bi-search"></i></button>
+              </div>
             </div>
           </div>
-          <div class="card-body">
-            <!-- BACKEND NOTE: GET api/quotations.php → [{id,customer,service,locations,amount,created_at,status}] -->
-            <table class="table table-modern datatable" id="quoteTable">
-              <thead><tr><th>Quote #</th><th>Customer</th><th>Service</th><th>Locations</th><th>Amount</th><th>Created</th><th>Status</th><th></th></tr></thead>
-              <tbody>
-                <tr>
-                  <td class="fw-semibold">QT-1042</td>
-                  <td class="d-flex align-items-center gap-2"><div class="row-avatar">NM</div>Nova Motors</td>
-                  <td>Billboard</td><td>Gachibowli Main Rd</td><td>₹1,25,000</td><td>28 Jul 2026</td>
-                  <td><span class="badge-status st-pending">Pending</span></td>
-                  <td class="text-end">
-                    <button class="action-icon" title="View" onclick="previewQuote()"><i class="bi bi-eye"></i></button>
-                    <button class="action-icon" title="Approve → Invoice" onclick="approveQuote('QT-1042')"><i class="bi bi-check-lg text-success"></i></button>
-                    <button class="action-icon" title="Reject & delete" onclick="rejectQuote('QT-1042')"><i class="bi bi-x-lg text-danger"></i></button>
-                  </td>
-                </tr>
-                <tr>
-                  <td class="fw-semibold">QT-1041</td>
-                  <td class="d-flex align-items-center gap-2"><div class="row-avatar">SR</div>Sunrise Retail</td>
-                  <td>TV Display</td><td>Phoenix Mall Screen 3</td><td>₹68,500</td><td>27 Jul 2026</td>
-                  <td><span class="badge-status st-approved">Approved</span></td>
-                  <td class="text-end">
-                    <button class="action-icon" title="View" onclick="previewQuote()"><i class="bi bi-eye"></i></button>
-                    <a href="invoices.html" class="action-icon" title="View invoice"><i class="bi bi-receipt"></i></a>
-                  </td>
-                </tr>
-                <tr>
-                  <td class="fw-semibold">QT-1040</td>
-                  <td class="d-flex align-items-center gap-2"><div class="row-avatar">PF</div>Prime Foods</td>
-                  <td>Billboard</td><td>Outer Ring Rd, Exit 12</td><td>₹2,10,000</td><td>25 Jul 2026</td>
-                  <td><span class="badge-status st-rejected">Rejected</span></td>
-                  <td class="text-end">
-                    <button class="action-icon" title="View" onclick="previewQuote()"><i class="bi bi-eye"></i></button>
-                    <button class="action-icon" title="Regenerate" onclick="showWizard()"><i class="bi bi-arrow-clockwise"></i></button>
-                  </td>
-                </tr>
-                <tr>
-                  <td class="fw-semibold">QT-1039</td>
-                  <td class="d-flex align-items-center gap-2"><div class="row-avatar">UT</div>Urban Tech</td>
-                  <td>TV Display</td><td>Forum Mall Screen 1</td><td>₹95,000</td><td>22 Jul 2026</td>
-                  <td><span class="badge-status st-approved">Approved</span></td>
-                  <td class="text-end">
-                    <button class="action-icon" title="View" onclick="previewQuote()"><i class="bi bi-eye"></i></button>
-                    <a href="invoices.html" class="action-icon" title="View invoice"><i class="bi bi-receipt"></i></a>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-modern mb-0">
+                <thead><tr><th>Quote #</th><th>Customer</th><th>Amount</th><th>Valid Until</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+                <tbody id="quoteTableBody">
+                  <tr><td colspan="6" class="text-center py-4 text-muted">Loading quotations...</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- ============ WIZARD VIEW (New / Regenerate Quotation) ============ -->
+      <!-- ============ WIZARD VIEW (New Quotation) ============ -->
       <div id="wizardView" style="display:none;">
         <div class="page-head">
           <div>
@@ -112,9 +78,9 @@
         </div>
 
         <ul class="wizard-steps">
-          <li class="active" id="step-tab-1"><span class="num">1</span>Customer & Service</li>
-          <li id="step-tab-2"><span class="num">2</span>Locations & Screens</li>
-          <li id="step-tab-3"><span class="num">3</span>Pricing Package</li>
+          <li class="active" id="step-tab-1"><span class="num">1</span>Customer & Requirement</li>
+          <li id="step-tab-2"><span class="num">2</span>Select Screens</li>
+          <li id="step-tab-3"><span class="num">3</span>Pricing & Tax</li>
           <li id="step-tab-4"><span class="num">4</span>Review & Generate</li>
         </ul>
 
@@ -125,116 +91,78 @@
             <div class="wizard-step" id="step-1">
               <div class="row">
                 <div class="col-md-6 mb-3">
-                  <label class="form-label">Customer *</label>
-                  <select class="form-select">
-                    <option>Nova Motors</option>
-                    <option>Sunrise Retail</option>
-                    <option>Prime Foods</option>
-                    <option>Urban Tech</option>
-                    <option value="">+ New customer…</option>
+                  <label class="form-label">Select Customer *</label>
+                  <select class="form-select" id="wiz_customer_id" required>
+                    <option value="">Loading customers...</option>
                   </select>
                 </div>
                 <div class="col-md-6 mb-3">
-                  <label class="form-label">Requirement Type *</label>
-                  <select class="form-select">
-                    <option>New campaign</option>
-                    <option>Renewal</option>
-                    <option>Upgrade / add screens</option>
-                  </select>
-                </div>
-              </div>
-              <label class="form-label">Select Advertising Service *</label>
-              <div class="row g-3 mb-3">
-                <div class="col-md-6">
-                  <input type="radio" class="btn-check" name="service" id="svc-billboard" checked>
-                  <label class="btn btn-outline-soft w-100 text-start py-3" for="svc-billboard">
-                    <i class="bi bi-signpost-2-fill fs-4 me-2"></i><strong>Billboard</strong>
-                    <div class="text-muted" style="font-size:12px;">Static / digital outdoor hoardings</div>
-                  </label>
-                </div>
-                <div class="col-md-6">
-                  <input type="radio" class="btn-check" name="service" id="svc-tv">
-                  <label class="btn btn-outline-soft w-100 text-start py-3" for="svc-tv">
-                    <i class="bi bi-display fs-4 me-2"></i><strong>TV Display</strong>
-                    <div class="text-muted" style="font-size:12px;">Indoor / mall / lobby screens</div>
-                  </label>
+                  <label class="form-label">Validity (Days) *</label>
+                  <input type="number" class="form-control" id="wiz_valid_days" value="15" required>
                 </div>
               </div>
               <label class="form-label">Requirement Notes</label>
-              <textarea class="form-control" rows="3" placeholder="Duration, target audience, creative specs, etc."></textarea>
+              <textarea class="form-control" id="wiz_notes" rows="3" placeholder="Duration, target audience, placement preferences, etc."></textarea>
             </div>
 
             <!-- Step 2 -->
             <div class="wizard-step" id="step-2" style="display:none;">
-              <label class="form-label">Choose Locations & Screens *</label>
-              <p class="text-muted" style="font-size:12.5px;">Pulled live from the Screens inventory — only <strong>Available</strong> screens can be selected. <a href="screens.html">Manage inventory →</a></p>
-              <div class="row g-3">
-                <div class="col-md-4">
-                  <div class="card">
-                    <div class="card-body">
-                      <div class="form-check mb-2">
-                        <input class="form-check-input" type="checkbox" checked id="scr1">
-                        <label class="form-check-label fw-semibold" for="scr1">Gachibowli Main Rd</label>
-                      </div>
-                      <div class="text-muted" style="font-size:12px;">Billboard · 40×20 ft · Hyderabad</div>
-                      <div class="chip mt-2">₹85,000 / month</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="card">
-                    <div class="card-body">
-                      <div class="form-check mb-2">
-                        <input class="form-check-input" type="checkbox" id="scr2">
-                        <label class="form-check-label fw-semibold" for="scr2">Hitec City Junction</label>
-                      </div>
-                      <div class="text-muted" style="font-size:12px;">Billboard · 30×15 ft · Hyderabad</div>
-                      <div class="chip mt-2">₹65,000 / month</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="card">
-                    <div class="card-body">
-                      <div class="form-check mb-2">
-                        <input class="form-check-input" type="checkbox" id="scr3">
-                        <label class="form-check-label fw-semibold" for="scr3">Kondapur Signal</label>
-                      </div>
-                      <div class="text-muted" style="font-size:12px;">Billboard · 25×12 ft · Hyderabad</div>
-                      <div class="chip mt-2">₹42,000 / month</div>
-                    </div>
-                  </div>
-                </div>
+              <label class="form-label">Choose Inventory Screens *</label>
+              <p class="text-muted" style="font-size:12.5px;">Select screens for this quotation proposal.</p>
+              <div class="row g-3" id="wizScreensContainer">
+                <div class="col-12 text-muted">Loading available screens...</div>
               </div>
             </div>
 
             <!-- Step 3 -->
             <div class="wizard-step" id="step-3" style="display:none;">
-              <label class="form-label">Select Pricing Package *</label>
+              <label class="form-label">Duration & Package *</label>
               <div class="row g-3 mb-4">
                 <div class="col-md-4">
-                  <input type="radio" class="btn-check" name="pkg" id="pkg-1">
+                  <input type="radio" class="btn-check" name="pkg" id="pkg-1" value="1" onchange="applyPackage(1, 0)">
                   <label class="btn btn-outline-soft w-100 text-start py-3" for="pkg-1">
                     <strong>1 Month</strong><div class="text-muted" style="font-size:12px;">Standard rate, no discount</div>
                   </label>
                 </div>
                 <div class="col-md-4">
-                  <input type="radio" class="btn-check" name="pkg" id="pkg-2" checked>
+                  <input type="radio" class="btn-check" name="pkg" id="pkg-2" value="3" checked onchange="applyPackage(3, 10)">
                   <label class="btn btn-outline-soft w-100 text-start py-3" for="pkg-2">
                     <strong>3 Months</strong><div class="text-muted" style="font-size:12px;">10% discount applied</div>
                   </label>
                 </div>
                 <div class="col-md-4">
-                  <input type="radio" class="btn-check" name="pkg" id="pkg-3">
+                  <input type="radio" class="btn-check" name="pkg" id="pkg-3" value="12" onchange="applyPackage(12, 20)">
                   <label class="btn btn-outline-soft w-100 text-start py-3" for="pkg-3">
                     <strong>12 Months</strong><div class="text-muted" style="font-size:12px;">20% discount applied</div>
                   </label>
                 </div>
               </div>
               <div class="row">
-                <div class="col-md-4 mb-3"><label class="form-label">Discount (%)</label><input type="number" class="form-control" value="10"></div>
-                <div class="col-md-4 mb-3"><label class="form-label">Tax / GST (%)</label><input type="number" class="form-control" value="18"></div>
-                <div class="col-md-4 mb-3"><label class="form-label">Installation Charges (₹)</label><input type="number" class="form-control" value="5000"></div>
+                <div class="col-md-4 mb-3">
+                  <label class="form-label">Duration (Months)</label>
+                  <input type="number" step="0.5" class="form-control" id="wiz_duration" value="3">
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label class="form-label">Discount Type</label>
+                  <select class="form-select" id="wiz_discount_type" onchange="recalculateSummary()">
+                    <option value="percentage">Percentage (%)</option>
+                    <option value="fixed">Fixed Amount (₹)</option>
+                  </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label class="form-label">Discount Value</label>
+                  <input type="number" step="0.01" class="form-control" id="wiz_discount_val" value="10" onkeyup="recalculateSummary()" onchange="recalculateSummary()">
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Tax Option</label>
+                  <select class="form-select" id="wiz_tax_type" onchange="recalculateSummary()">
+                    <option value="intra">Intra-State GST (CGST 9% + SGST 9%)</option>
+                    <option value="inter">Inter-State GST (IGST 18%)</option>
+                    <option value="none">No Tax / Tax Exempt (0%)</option>
+                  </select>
+                </div>
               </div>
             </div>
 
@@ -242,25 +170,25 @@
             <div class="wizard-step" id="step-4" style="display:none;">
               <div class="d-flex justify-content-between align-items-start mb-3">
                 <div>
-                  <h5 class="mb-0">Quotation Preview</h5>
-                  <div class="text-muted" style="font-size:12.5px;">QT-1043 · Nova Motors · Generated 01 Aug 2026</div>
+                  <h5 class="mb-0">Quotation Summary Preview</h5>
+                  <div class="text-muted" style="font-size:12.5px;" id="wizPreviewSubtitle">Draft Quotation</div>
                 </div>
                 <span class="badge-status st-draft">Draft</span>
               </div>
               <table class="table table-modern mb-3">
-                <thead><tr><th>Item</th><th>Duration</th><th>Rate</th><th>Amount</th></tr></thead>
-                <tbody>
-                  <tr><td>Billboard — Gachibowli Main Rd</td><td>3 months</td><td>₹85,000/mo</td><td>₹2,55,000</td></tr>
+                <thead><tr><th>Selected Item</th><th>Duration</th><th>Rate</th><th>Total</th></tr></thead>
+                <tbody id="wizPreviewTableBody">
                 </tbody>
                 <tfoot>
-                  <tr><td colspan="3" class="text-end text-muted">Discount (10%)</td><td>-₹25,500</td></tr>
-                  <tr><td colspan="3" class="text-end text-muted">Installation</td><td>₹5,000</td></tr>
-                  <tr><td colspan="3" class="text-end text-muted">GST (18%)</td><td>₹41,850</td></tr>
-                  <tr><td colspan="3" class="text-end fw-bold">Total Payable</td><td class="fw-bold">₹2,74,850</td></tr>
+                  <tr><td colspan="3" class="text-end text-muted">Subtotal</td><td id="wizSummarySubtotal">₹0.00</td></tr>
+                  <tr><td colspan="3" class="text-end text-muted">Discount</td><td id="wizSummaryDiscount">-₹0.00</td></tr>
+                  <tr><td colspan="3" class="text-end text-muted">Taxable Amount</td><td id="wizSummaryTaxable">₹0.00</td></tr>
+                  <tr><td colspan="3" class="text-end text-muted">Taxes (GST)</td><td id="wizSummaryTax">₹0.00</td></tr>
+                  <tr><td colspan="3" class="text-end fw-bold">Total Payable</td><td class="fw-bold" id="wizSummaryTotal">₹0.00</td></tr>
                 </tfoot>
               </table>
-              <div class="alert" style="background:var(--amber-light);border:1px solid #F3D9A4;font-size:13px;">
-                <i class="bi bi-info-circle-fill me-1"></i> Once generated, share this PDF with the customer. If they approve, click <strong>Approve & Convert to Invoice</strong> below — it will move straight into the Invoices module. If rejected, use <strong>Reject & Regenerate</strong> to edit this same quotation instead of creating a duplicate.
+              <div class="alert alert-info py-2" style="font-size:13px;">
+                <i class="bi bi-info-circle-fill me-1"></i> Submitting this quotation will set its status to <strong>Pending Approval</strong>.
               </div>
             </div>
 
@@ -269,19 +197,7 @@
             <button class="btn btn-outline-soft" id="btnBack" onclick="wizardBack()" style="visibility:hidden;"><i class="bi bi-arrow-left"></i> Back</button>
             <div class="d-flex gap-2">
               <button class="btn btn-primary" id="btnNext" onclick="wizardNext()">Next <i class="bi bi-arrow-right"></i></button>
-              <button class="btn btn-amber" id="btnGenerate" style="display:none;" onclick="generatePdf()"><i class="bi bi-file-earmark-pdf-fill"></i> Generate Quotation (PDF)</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Post-generation actions -->
-        <div class="card mt-3" id="postGenActions" style="display:none;">
-          <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <div class="text-muted" style="font-size:13px;"><i class="bi bi-check-circle-fill text-success me-1"></i> Quotation PDF generated. Awaiting customer decision.</div>
-            <div class="d-flex gap-2">
-              <button class="btn btn-outline-soft"><i class="bi bi-download"></i> Download PDF</button>
-              <button class="btn" style="background:var(--red-light);color:#C0392B;border:1px solid #F3C7C7;" onclick="rejectQuote('QT-1043')"><i class="bi bi-x-lg"></i> Reject & Regenerate</button>
-              <button class="btn btn-primary" onclick="approveQuote('QT-1043')"><i class="bi bi-check-lg"></i> Approve & Convert to Invoice</button>
+              <button class="btn btn-primary" id="btnGenerate" style="display:none;" onclick="saveQuotation()"><i class="bi bi-check-circle-fill me-1"></i> Save & Submit Quotation</button>
             </div>
           </div>
         </div>
@@ -291,77 +207,556 @@
   </main>
 </div>
 
-<!-- Quick preview modal -->
+<!-- Preview Modal -->
 <div class="modal fade" id="previewModal" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <div class="modal-header"><h5 class="modal-title">QT-1042 — Nova Motors</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
-      <div class="modal-body">
-        <table class="table table-modern">
-          <thead><tr><th>Item</th><th>Duration</th><th>Rate</th><th>Amount</th></tr></thead>
-          <tbody><tr><td>Billboard — Gachibowli Main Rd</td><td>3 months</td><td>₹85,000/mo</td><td>₹2,55,000</td></tr></tbody>
-        </table>
+      <div class="modal-header">
+        <h5 class="modal-title" id="previewModalTitle">Quotation Details</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-footer">
+      <div class="modal-body" id="previewModalBody">
+        Loading quotation details...
+      </div>
+      <div class="modal-footer" id="previewModalFooter">
         <button class="btn btn-outline-soft" data-bs-dismiss="modal">Close</button>
-        <button class="btn btn-primary"><i class="bi bi-download"></i> Download PDF</button>
       </div>
     </div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+<script src="assets/js/api.js"></script>
 <script src="assets/js/layout.js"></script>
 <script src="assets/js/script.js"></script>
 <script>
+  let quotationsList = [];
+  let availableCustomers = [];
+  let availableScreens = [];
   let currentStep = 1;
-  function showWizard(){ document.getElementById('listView').style.display='none'; document.getElementById('wizardView').style.display='block'; goToStep(1); }
-  function showList(){ document.getElementById('wizardView').style.display='none'; document.getElementById('listView').style.display='block'; }
 
-  function goToStep(n){
+  function formatCurrency(amt) {
+    return '₹' + Number(amt || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  async function loadQuotations() {
+    const tbody = document.getElementById('quoteTableBody');
+    const status = document.getElementById('filterStatus').value;
+    const search = document.getElementById('quoteSearchInput').value.trim();
+
+    try {
+      let params = new URLSearchParams({ limit: 100 });
+      if (status) params.append('status', status);
+      if (search) params.append('search', search);
+
+      const res = await window.api.get(`/quotations.php?${params.toString()}`);
+      if (!res || !res.success) return;
+
+      quotationsList = res.data || [];
+
+      // Update stat cards
+      document.getElementById('statPendingQuotations').textContent = quotationsList.filter(q => q.status === 'pending_approval').length;
+      document.getElementById('statApprovedQuotations').textContent = quotationsList.filter(q => q.status === 'approved' || q.status === 'converted').length;
+      document.getElementById('statRejectedQuotations').textContent = quotationsList.filter(q => q.status === 'rejected').length;
+
+      if (quotationsList.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">No quotations found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = quotationsList.map(q => {
+        let badgeClass = 'st-pending';
+        if (q.status === 'approved') badgeClass = 'st-approved';
+        if (q.status === 'converted') badgeClass = 'st-converted';
+        if (q.status === 'rejected') badgeClass = 'st-rejected';
+
+        const initials = (q.customer ? q.customer.company_name : 'CU').split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+
+        return `
+          <tr>
+            <td class="fw-semibold">${q.quotation_number}</td>
+            <td class="d-flex align-items-center gap-2">
+              <div class="row-avatar">${initials}</div>
+              <div>${q.customer ? q.customer.company_name : 'N/A'}</div>
+            </td>
+            <td>${formatCurrency(q.total_amount)}</td>
+            <td>${q.valid_until || '-'}</td>
+            <td><span class="badge-status ${badgeClass}">${q.status}</span></td>
+            <td class="text-end">
+              <button class="action-icon me-1" title="View Details" onclick="viewQuotationDetails(${q.id})"><i class="bi bi-eye"></i></button>
+              <a href="api/quotation-pdf.php?id=${q.id}" target="_blank" class="action-icon me-1 text-primary" title="View PDF"><i class="bi bi-file-earmark-pdf"></i></a>
+              <a href="api/quotation-pdf.php?id=${q.id}&download=1" class="action-icon me-1 text-dark" title="Download PDF"><i class="bi bi-download"></i></a>
+              <a href="api/quotation-pdf.php?id=${q.id}" target="_blank" class="action-icon me-1 text-secondary" title="Print PDF"><i class="bi bi-printer"></i></a>
+              <button class="action-icon me-1 text-info" title="Send Email" onclick="openSendQuotationEmailModal(${q.id}, '${q.quotation_number}', '${q.customer ? (q.customer.email || '') : ''}', '${q.customer ? (q.customer.contact_person || q.customer.company_name || '') : ''}')"><i class="bi bi-envelope"></i></button>
+              ${q.status === 'pending_approval' ? `
+                <button class="action-icon text-success me-1 manager-only" title="Approve Quotation" onclick="approveQuotation(${q.id}, '${q.quotation_number}')"><i class="bi bi-check-lg"></i></button>
+                <button class="action-icon text-danger me-1 manager-only" title="Reject Quotation" onclick="rejectQuotation(${q.id}, '${q.quotation_number}')"><i class="bi bi-x-lg"></i></button>
+              ` : ''}
+              ${q.status === 'approved' ? `
+                <button class="btn btn-sm btn-primary py-0 px-2 manager-only" title="Convert to Invoice" onclick="convertToInvoice(${q.id}, '${q.quotation_number}')"><i class="bi bi-receipt me-1"></i> Convert to Invoice</button>
+              ` : ''}
+              ${(q.status === 'draft' || q.status === 'rejected') ? `
+                <button class="action-icon text-danger" title="Delete" onclick="deleteQuotation(${q.id}, '${q.quotation_number}')"><i class="bi bi-trash"></i></button>
+              ` : ''}
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+    } catch (err) {
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Failed to load quotations: ${err.message}</td></tr>`;
+    }
+  }
+
+  async function loadWizardData() {
+    try {
+      const cRes = await window.api.get('/customers.php?limit=100');
+      if (cRes && cRes.success) {
+        availableCustomers = cRes.data || [];
+        const custSelect = document.getElementById('wiz_customer_id');
+        custSelect.innerHTML = '<option value="">Select a customer...</option>' +
+          availableCustomers.map(c => `<option value="${c.id}">${c.company_name} (${c.contact_person})</option>`).join('');
+      }
+
+      const sRes = await window.api.get('/screens.php?limit=100');
+      if (sRes && sRes.success) {
+        availableScreens = (sRes.data || []).filter(s => s.status === 'available');
+        const scrContainer = document.getElementById('wizScreensContainer');
+        if (availableScreens.length === 0) {
+          scrContainer.innerHTML = '<div class="col-12 text-muted">No available screens found in inventory.</div>';
+        } else {
+          scrContainer.innerHTML = availableScreens.map(s => `
+            <div class="col-md-4">
+              <div class="card">
+                <div class="card-body">
+                  <div class="form-check mb-2">
+                    <input class="form-check-input wiz-screen-checkbox" type="checkbox" value="${s.id}" id="scr_${s.id}" onchange="recalculateSummary()">
+                    <label class="form-check-label fw-semibold" for="scr_${s.id}">${s.name}</label>
+                  </div>
+                  <div class="text-muted" style="font-size:12px;">${s.screen_type} · ${s.city} · ${s.dimensions || 'N/A'}</div>
+                  <div class="chip mt-2">${formatCurrency(s.monthly_rate)} / month</div>
+                </div>
+              </div>
+            </div>
+          `).join('');
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load wizard dependency data:', err);
+    }
+  }
+
+  function showWizard() {
+    document.getElementById('listView').style.display = 'none';
+    document.getElementById('wizardView').style.display = 'block';
+    loadWizardData();
+    goToStep(1);
+  }
+
+  function showList() {
+    document.getElementById('wizardView').style.display = 'none';
+    document.getElementById('listView').style.display = 'block';
+    loadQuotations();
+  }
+
+  function goToStep(n) {
     currentStep = n;
-    for (let i=1;i<=4;i++){
-      document.getElementById('step-'+i).style.display = (i===n) ? 'block' : 'none';
-      const tab = document.getElementById('step-tab-'+i);
-      tab.classList.remove('active','done');
+    for (let i = 1; i <= 4; i++) {
+      document.getElementById('step-' + i).style.display = (i === n) ? 'block' : 'none';
+      const tab = document.getElementById('step-tab-' + i);
+      tab.classList.remove('active', 'done');
       if (i < n) tab.classList.add('done');
       if (i === n) tab.classList.add('active');
     }
-    document.getElementById('btnBack').style.visibility = (n===1) ? 'hidden' : 'visible';
-    document.getElementById('btnNext').style.display = (n===4) ? 'none' : 'inline-block';
-    document.getElementById('btnGenerate').style.display = (n===4) ? 'inline-block' : 'none';
-    document.getElementById('postGenActions').style.display = 'none';
-  }
-  function wizardNext(){ if (currentStep < 4) goToStep(currentStep+1); }
-  function wizardBack(){ if (currentStep > 1) goToStep(currentStep-1); }
+    document.getElementById('btnBack').style.visibility = (n === 1) ? 'hidden' : 'visible';
+    document.getElementById('btnNext').style.display = (n === 4) ? 'none' : 'inline-block';
+    document.getElementById('btnGenerate').style.display = (n === 4) ? 'inline-block' : 'none';
 
-  function generatePdf(){
-    /* BACKEND HOOK:
-      fetch('api/quotations.php', {method:'POST', body: JSON.stringify(wizardPayload)})
-        .then(r=>r.json()).then(res => { window.open(res.pdf_url, '_blank'); });
-    */
-    document.getElementById('postGenActions').style.display = 'block';
+    if (n === 4) {
+      recalculateSummary();
+    }
   }
 
-  function approveQuote(id){
-    if (!confirmAction('Approve ' + id + ' and convert it to an invoice?')) return;
-    /* BACKEND HOOK: POST api/quotations.php?id=..&action=approve  → creates linked invoice */
-    window.location.href = 'invoices.html';
+  function wizardNext() {
+    if (currentStep === 1) {
+      if (!document.getElementById('wiz_customer_id').value) {
+        alert('Please select a customer.');
+        return;
+      }
+    }
+    if (currentStep === 2) {
+      const selected = document.querySelectorAll('.wiz-screen-checkbox:checked');
+      if (selected.length === 0) {
+        alert('Please select at least one screen.');
+        return;
+      }
+    }
+    if (currentStep < 4) goToStep(currentStep + 1);
   }
-  function rejectQuote(id){
-    if (!confirmAction('Reject ' + id + '? You can immediately edit and regenerate it below instead of creating a new quotation.')) return;
-    /* BACKEND HOOK: POST api/quotations.php?id=..&action=reject (soft-deletes old draft) */
-    showWizard();
-  }
-  function previewQuote(){ new bootstrap.Modal(document.getElementById('previewModal')).show(); }
 
-  // Auto-open wizard if navigated here with ?new=1
-  if (new URLSearchParams(window.location.search).get('new') === '1') {
-    document.addEventListener('adsdash:layoutReady', showWizard);
+  function wizardBack() {
+    if (currentStep > 1) goToStep(currentStep - 1);
   }
+
+  function applyPackage(months, discPercent) {
+    document.getElementById('wiz_duration').value = months;
+    document.getElementById('wiz_discount_type').value = 'percentage';
+    document.getElementById('wiz_discount_val').value = discPercent;
+    recalculateSummary();
+  }
+
+  function recalculateSummary() {
+    const selectedBoxes = document.querySelectorAll('.wiz-screen-checkbox:checked');
+    const selectedScreenIds = Array.from(selectedBoxes).map(b => parseInt(b.value));
+
+    const durationMonths = parseFloat(document.getElementById('wiz_duration').value) || 1;
+    const discountType = document.getElementById('wiz_discount_type').value;
+    const discountVal = parseFloat(document.getElementById('wiz_discount_val').value) || 0;
+    const taxType = document.getElementById('wiz_tax_type').value;
+
+    let items = [];
+    let subtotal = 0;
+
+    selectedScreenIds.forEach(sId => {
+      const s = availableScreens.find(scr => scr.id === sId);
+      if (s) {
+        const lineTotal = s.monthly_rate * durationMonths;
+        subtotal += lineTotal;
+        items.push({
+          screen_id: s.id,
+          name: s.name,
+          duration: durationMonths,
+          rate: s.monthly_rate,
+          line_total: lineTotal
+        });
+      }
+    });
+
+    let discountAmount = 0;
+    if (discountType === 'percentage') {
+      discountAmount = subtotal * (discountVal / 100);
+    } else {
+      discountAmount = discountVal;
+    }
+    if (discountAmount > subtotal) discountAmount = subtotal;
+
+    const taxable = subtotal - discountAmount;
+
+    let cgstRate = 0, sgstRate = 0, igstRate = 0;
+    let cgstAmt = 0, sgstAmt = 0, igstAmt = 0;
+
+    if (taxType === 'intra') {
+      cgstRate = 9; sgstRate = 9;
+      cgstAmt = taxable * 0.09;
+      sgstAmt = taxable * 0.09;
+    } else if (taxType === 'inter') {
+      igstRate = 18;
+      igstAmt = taxable * 0.18;
+    }
+
+    const totalTax = cgstAmt + sgstAmt + igstAmt;
+    const totalAmount = taxable + totalTax;
+
+    // Render Preview Table
+    const tbody = document.getElementById('wizPreviewTableBody');
+    tbody.innerHTML = items.map(i => `
+      <tr>
+        <td>${i.name}</td>
+        <td>${i.duration} months</td>
+        <td>${formatCurrency(i.rate)}/mo</td>
+        <td>${formatCurrency(i.line_total)}</td>
+      </tr>
+    `).join('');
+
+    document.getElementById('wizSummarySubtotal').textContent = formatCurrency(subtotal);
+    document.getElementById('wizSummaryDiscount').textContent = '-' + formatCurrency(discountAmount);
+    document.getElementById('wizSummaryTaxable').textContent = formatCurrency(taxable);
+    document.getElementById('wizSummaryTax').textContent = formatCurrency(totalTax);
+    document.getElementById('wizSummaryTotal').textContent = formatCurrency(totalAmount);
+  }
+
+  async function saveQuotation() {
+    const custId = parseInt(document.getElementById('wiz_customer_id').value);
+    const validDays = parseInt(document.getElementById('wiz_valid_days').value) || 15;
+    const notes = document.getElementById('wiz_notes').value.trim();
+
+    const selectedBoxes = document.querySelectorAll('.wiz-screen-checkbox:checked');
+    const selectedScreenIds = Array.from(selectedBoxes).map(b => parseInt(b.value));
+
+    const durationMonths = parseFloat(document.getElementById('wiz_duration').value) || 1;
+    const discountType = document.getElementById('wiz_discount_type').value;
+    const discountVal = parseFloat(document.getElementById('wiz_discount_val').value) || 0;
+    const taxType = document.getElementById('wiz_tax_type').value;
+
+    const validUntilDate = new Date();
+    validUntilDate.setDate(validUntilDate.getDate() + validDays);
+    const validUntilStr = validUntilDate.toISOString().split('T')[0];
+
+    let items = selectedScreenIds.map(sId => {
+      const s = availableScreens.find(scr => scr.id === sId);
+      return {
+        screen_id: sId,
+        description: s ? s.name : 'Screen Advertising',
+        quantity: 1,
+        duration_months: durationMonths,
+        unit_price: s ? s.monthly_rate : 0
+      };
+    });
+
+    const payload = {
+      customer_id: custId,
+      valid_until: validUntilStr,
+      discount_type: discountType,
+      discount_value: discountVal,
+      is_igst: taxType === 'inter',
+      notes: notes,
+      items: items
+    };
+
+    const genBtn = document.getElementById('btnGenerate');
+    genBtn.disabled = true;
+
+    try {
+      // 1. Create quotation
+      const createRes = await window.api.post('/quotations.php', payload);
+      if (!createRes || !createRes.success) {
+        alert(`Error creating quotation: ${createRes ? createRes.message : 'Unknown'}`);
+        return;
+      }
+
+      const qId = createRes.data.id;
+
+      // 2. Submit quotation for approval
+      await window.api.post(`/quotations.php?id=${qId}&action=submit`);
+
+      alert(`Quotation ${createRes.data.quotation_number} submitted for approval!`);
+      showList();
+    } catch (err) {
+      alert(`Failed to generate quotation: ${err.message}`);
+    } finally {
+      genBtn.disabled = false;
+    }
+  }
+
+  async function approveQuotation(id, qNum) {
+    if (!confirmAction(`Approve quotation ${qNum}?`)) return;
+    try {
+      const res = await window.api.post(`/quotations.php?id=${id}&action=approve`);
+      if (res && res.success) {
+        loadQuotations();
+      }
+    } catch (err) {
+      alert(`Approval failed: ${err.message}`);
+    }
+  }
+
+  async function rejectQuotation(id, qNum) {
+    const reason = prompt(`Reason for rejecting ${qNum}?`, 'Customer declined budget');
+    if (reason === null) return;
+
+    try {
+      const res = await window.api.post(`/quotations.php?id=${id}&action=reject`, { reason });
+      if (res && res.success) {
+        loadQuotations();
+      }
+    } catch (err) {
+      alert(`Rejection failed: ${err.message}`);
+    }
+  }
+
+  async function convertToInvoice(qId, qNum) {
+    if (!confirmAction(`Convert approved quotation ${qNum} to Invoice?`)) return;
+    try {
+      const res = await window.api.post(`/invoices.php?action=from_quotation&quotation_id=${qId}`);
+      if (res && res.success) {
+        alert(`Invoice ${res.data.invoice_number} created successfully!`);
+        window.location.href = 'invoices.html';
+      }
+    } catch (err) {
+      alert(`Conversion failed: ${err.message}`);
+    }
+  }
+
+  async function deleteQuotation(id, qNum) {
+    if (!confirmAction(`Delete quotation ${qNum}?`)) return;
+    try {
+      const res = await window.api.delete(`/quotations.php?id=${id}`);
+      if (res && res.success) {
+        loadQuotations();
+      }
+    } catch (err) {
+      alert(`Delete failed: ${err.message}`);
+    }
+  }
+
+  async function viewQuotationDetails(id) {
+    const modalEl = document.getElementById('previewModal');
+    const titleEl = document.getElementById('previewModalTitle');
+    const bodyEl = document.getElementById('previewModalBody');
+
+    try {
+      const res = await window.api.get(`/quotations.php?id=${id}`);
+      if (!res || !res.success || !res.data) return;
+
+      const q = res.data;
+      titleEl.textContent = `${q.quotation_number} — ${q.customer ? q.customer.company_name : 'Customer'}`;
+
+      bodyEl.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <div><strong>Date:</strong> ${q.quotation_date}</div>
+            <div><strong>Valid Until:</strong> ${q.valid_until}</div>
+          </div>
+          <div><span class="badge-status st-${q.status}">${q.status}</span></div>
+        </div>
+        <table class="table table-modern mb-3">
+          <thead><tr><th>Item</th><th>Duration</th><th>Rate</th><th>Line Total</th></tr></thead>
+          <tbody>
+            ${(q.items || []).map(i => `
+              <tr>
+                <td>${i.description || i.screen_name || 'Screen'}</td>
+                <td>${i.duration_months} months</td>
+                <td>${formatCurrency(i.unit_price)}</td>
+                <td>${formatCurrency(i.line_total)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+          <tfoot>
+            <tr><td colspan="3" class="text-end text-muted">Subtotal</td><td>${formatCurrency(q.subtotal)}</td></tr>
+            <tr><td colspan="3" class="text-end text-muted">Discount</td><td>-${formatCurrency(q.discount_amount)}</td></tr>
+            <tr><td colspan="3" class="text-end text-muted">CGST (${q.cgst_rate}%)</td><td>${formatCurrency(q.cgst_amount)}</td></tr>
+            <tr><td colspan="3" class="text-end text-muted">SGST (${q.sgst_rate}%)</td><td>${formatCurrency(q.sgst_amount)}</td></tr>
+            <tr><td colspan="3" class="text-end text-muted">IGST (${q.igst_rate}%)</td><td>${formatCurrency(q.igst_amount)}</td></tr>
+            <tr><td colspan="3" class="text-end fw-bold">Total Amount</td><td class="fw-bold">${formatCurrency(q.total_amount)}</td></tr>
+          </tfoot>
+        </table>
+        ${q.notes ? `<div class="alert alert-light border"><strong>Notes:</strong> ${q.notes}</div>` : ''}
+      `;
+
+      document.getElementById('previewModalFooter').innerHTML = `
+        <button class="btn btn-outline-soft" data-bs-dismiss="modal">Close</button>
+        <a href="api/quotation-pdf.php?id=${q.id}" target="_blank" class="btn btn-outline-primary"><i class="bi bi-file-earmark-pdf me-1"></i> View PDF</a>
+        <a href="api/quotation-pdf.php?id=${q.id}&download=1" class="btn btn-primary"><i class="bi bi-download me-1"></i> Download PDF</a>
+      `;
+
+      new bootstrap.Modal(modalEl).show();
+    } catch (err) {
+      alert(`Failed to load quotation details: ${err.message}`);
+    }
+  }
+</script>
+
+<!-- SEND EMAIL MODAL -->
+<div class="modal fade" id="sendEmailModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="sendEmailModalTitle"><i class="bi bi-envelope me-2"></i>Send Quotation Email</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="email_target_id">
+        <div class="alert alert-info py-2 small mb-3">
+          <i class="bi bi-paperclip me-1"></i> Quotation PDF will be attached automatically.
+        </div>
+        <div class="mb-3">
+          <label class="form-label text-muted small fw-semibold">Recipient Email *</label>
+          <input type="email" id="email_recipient_email" class="form-control" placeholder="customer@example.com" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label text-muted small fw-semibold">Recipient Name</label>
+          <input type="text" id="email_recipient_name" class="form-control" placeholder="Contact Person Name">
+        </div>
+        <div id="emailSendAlert" class="d-none alert py-2 small"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-soft" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" id="btnSendEmailSubmit" class="btn btn-primary" onclick="submitSendQuotationEmail()">
+          <span id="btnSendEmailSpinner" class="spinner-border spinner-border-sm me-1 d-none"></span>
+          <i class="bi bi-send me-1" id="btnSendEmailIcon"></i> <span id="btnSendEmailText">Send Quotation</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openSendQuotationEmailModal(id, qNum, email, name) {
+    document.getElementById('email_target_id').value = id;
+    document.getElementById('sendEmailModalTitle').innerHTML = `<i class="bi bi-envelope me-2"></i>Send Email — ${qNum}`;
+    document.getElementById('email_recipient_email').value = email || '';
+    document.getElementById('email_recipient_name').value = name || '';
+
+    const alertEl = document.getElementById('emailSendAlert');
+    alertEl.className = 'd-none alert py-2 small';
+    alertEl.textContent = '';
+
+    const submitBtn = document.getElementById('btnSendEmailSubmit');
+    submitBtn.disabled = false;
+    document.getElementById('btnSendEmailSpinner').classList.add('d-none');
+    document.getElementById('btnSendEmailIcon').classList.remove('d-none');
+    document.getElementById('btnSendEmailText').textContent = 'Send Quotation';
+
+    new bootstrap.Modal(document.getElementById('sendEmailModal')).show();
+  }
+
+  async function submitSendQuotationEmail() {
+    const id = parseInt(document.getElementById('email_target_id').value, 10);
+    const email = document.getElementById('email_recipient_email').value.trim();
+    const name = document.getElementById('email_recipient_name').value.trim();
+
+    const alertEl = document.getElementById('emailSendAlert');
+    alertEl.className = 'd-none alert py-2 small';
+
+    if (!email) {
+      alertEl.className = 'alert alert-danger py-2 small mb-3';
+      alertEl.textContent = 'Customer email address is not available. Please enter a recipient email.';
+      return;
+    }
+
+    const submitBtn = document.getElementById('btnSendEmailSubmit');
+    const spinner = document.getElementById('btnSendEmailSpinner');
+    const icon = document.getElementById('btnSendEmailIcon');
+    const btnText = document.getElementById('btnSendEmailText');
+
+    submitBtn.disabled = true;
+    spinner.classList.remove('d-none');
+    icon.classList.add('d-none');
+    btnText.textContent = 'Sending...';
+
+    try {
+      const res = await window.api.sendQuotationEmail(id, email, name);
+      if (res && res.success) {
+        alertEl.className = 'alert alert-success py-2 small mb-3';
+        alertEl.textContent = 'Quotation email sent successfully.';
+        setTimeout(() => {
+          const modalInst = bootstrap.Modal.getInstance(document.getElementById('sendEmailModal'));
+          if (modalInst) modalInst.hide();
+        }, 1500);
+      } else {
+        alertEl.className = 'alert alert-danger py-2 small mb-3';
+        alertEl.textContent = (res && res.message) ? res.message : 'Unable to send email.';
+        submitBtn.disabled = false;
+        spinner.classList.add('d-none');
+        icon.classList.remove('d-none');
+        btnText.textContent = 'Send Quotation';
+      }
+    } catch (err) {
+      alertEl.className = 'alert alert-danger py-2 small mb-3';
+      alertEl.textContent = err.message || 'Unable to send email.';
+      submitBtn.disabled = false;
+      spinner.classList.add('d-none');
+      icon.classList.remove('d-none');
+      btnText.textContent = 'Send Quotation';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadQuotations();
+    if (new URLSearchParams(window.location.search).get('new') === '1') {
+      showWizard();
+    }
+  });
 </script>
 </body>
 </html>

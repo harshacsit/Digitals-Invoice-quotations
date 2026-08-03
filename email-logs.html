@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email History & Monitoring · Bhimavaram Digitals</title>
+  <meta name="description" content="View system and business email delivery history, status logs, retry management, and reliability metrics.">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+<div class="app-shell">
+  <div id="sidebar-placeholder"></div>
+
+  <main class="main">
+    <div id="topbar-placeholder"></div>
+
+    <div class="page">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h1 class="h3 mb-1 fw-bold">Email Delivery & Monitoring</h1>
+          <p class="text-muted small mb-0">Audit email logs, track delivery status, monitor retries, and manage dispatch reliability.</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <button class="btn btn-outline-primary btn-sm me-2" onclick="exportLogCsv()">
+            <i class="bi bi-download me-1"></i> Export CSV
+          </button>
+          <button class="btn btn-primary btn-sm manager-only" onclick="openSystemEmailModal()">
+            <i class="bi bi-send me-1"></i> Send System Notification
+          </button>
+        </div>
+      </div>
+
+      <!-- Monitoring Summary Metric Cards -->
+      <div class="row g-3 mb-4">
+        <div class="col">
+          <div class="card border-0 shadow-sm text-center py-3">
+            <div class="text-muted small fw-semibold">Total Emails</div>
+            <div class="fs-4 fw-bold text-dark mt-1" id="statTotal">0</div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card border-0 shadow-sm text-center py-3">
+            <div class="text-muted small fw-semibold text-success">Sent</div>
+            <div class="fs-4 fw-bold text-success mt-1" id="statSent">0</div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card border-0 shadow-sm text-center py-3">
+            <div class="text-muted small fw-semibold text-danger">Failed</div>
+            <div class="fs-4 fw-bold text-danger mt-1" id="statFailed">0</div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card border-0 shadow-sm text-center py-3">
+            <div class="text-muted small fw-semibold text-warning">Queued</div>
+            <div class="fs-4 fw-bold text-warning mt-1" id="statQueued">0</div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card border-0 shadow-sm text-center py-3">
+            <div class="text-muted small fw-semibold text-info">Retry Pending</div>
+            <div class="fs-4 fw-bold text-info mt-1" id="statPending">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters & Search Toolbar (Including Date Filters) -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body py-3">
+          <div class="row g-2 align-items-center mb-2">
+            <div class="col-md-3">
+              <label class="form-label text-muted small fw-semibold mb-1">Search</label>
+              <div class="input-group input-group-sm">
+                <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" class="form-control border-start-0" id="filterSearch" placeholder="Recipient / subject..." onkeyup="if(event.key==='Enter') loadEmailLogs(1)">
+              </div>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label text-muted small fw-semibold mb-1">Email Type</label>
+              <select class="form-select form-select-sm" id="filterType" onchange="loadEmailLogs(1)">
+                <option value="">All Types</option>
+                <option value="quotation">Quotation</option>
+                <option value="invoice">Invoice</option>
+                <option value="payment">Payment</option>
+                <option value="campaign">Campaign</option>
+                <option value="system">System</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label text-muted small fw-semibold mb-1">Status</label>
+              <select class="form-select form-select-sm" id="filterStatus" onchange="loadEmailLogs(1)">
+                <option value="">All Statuses</option>
+                <option value="sent">Sent</option>
+                <option value="queued">Queued</option>
+                <option value="failed">Failed</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label text-muted small fw-semibold mb-1">From Date</label>
+              <input type="date" class="form-control form-control-sm" id="filterFromDate" onchange="loadEmailLogs(1)">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label text-muted small fw-semibold mb-1">To Date</label>
+              <input type="date" class="form-control form-control-sm" id="filterToDate" onchange="loadEmailLogs(1)">
+            </div>
+          </div>
+          <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+            <div class="col-md-3">
+              <select class="form-select form-select-sm" id="filterRefType" onchange="loadEmailLogs(1)">
+                <option value="">All Reference Types</option>
+                <option value="quotation">Quotation</option>
+                <option value="invoice">Invoice</option>
+                <option value="payment">Payment</option>
+                <option value="campaign">Campaign</option>
+                <option value="system">System</option>
+              </select>
+            </div>
+            <div>
+              <button class="btn btn-primary btn-sm me-2" onclick="loadEmailLogs(1)"><i class="bi bi-filter me-1"></i> Apply Filters</button>
+              <button class="btn btn-outline-secondary btn-sm" onclick="clearLogFilters()"><i class="bi bi-arrow-counterclockwise me-1"></i> Clear Filters</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast Feedback Container -->
+      <div id="emailLogAlert" class="d-none alert py-2 mb-3 small"></div>
+
+      <!-- Logs Table Card -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-modern align-middle mb-0" id="logsTable">
+              <thead>
+                <tr>
+                  <th>Recipient</th>
+                  <th>Subject</th>
+                  <th>Type</th>
+                  <th>Reference</th>
+                  <th>Status</th>
+                  <th>Attempts</th>
+                  <th>Sent / Created</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="logsTableBody">
+                <tr><td colspan="8" class="text-center py-4 text-muted">Loading email delivery logs...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-footer d-flex justify-content-between align-items-center bg-transparent py-2 px-3 border-top">
+          <div class="text-muted small" id="logsPaginationInfo">Showing 0 of 0 entries</div>
+          <div id="logsPaginationControls"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- EMAIL LOG DETAIL MODAL (ORGANIZED SECTIONS) -->
+<div class="modal fade" id="emailDetailModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header border-bottom py-3">
+        <h5 class="modal-title" id="emailDetailModalTitle"><i class="bi bi-envelope-paper me-2 text-primary"></i>Email Delivery Log Inspection</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="emailDetailModalBody">
+        <div class="text-center py-4"><span class="spinner-border spinner-border-sm text-primary"></span> Loading log details...</div>
+      </div>
+      <div class="modal-footer border-top py-2" id="emailDetailModalFooter">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SYSTEM NOTIFICATION MODAL (OWNER / MANAGER ONLY) -->
+<div class="modal fade" id="systemEmailModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-send me-2"></i>Send System Notification</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label text-muted small fw-semibold">Recipient Email *</label>
+          <input type="email" id="sys_recipient_email" class="form-control" placeholder="user@example.com" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label text-muted small fw-semibold">Recipient Name</label>
+          <input type="text" id="sys_recipient_name" class="form-control" placeholder="User Name">
+        </div>
+        <div class="mb-3">
+          <label class="form-label text-muted small fw-semibold">Subject / Title *</label>
+          <input type="text" id="sys_title" class="form-control" placeholder="Account Update" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label text-muted small fw-semibold">Message Content *</label>
+          <textarea id="sys_message" class="form-control" rows="3" placeholder="Enter notification message..." required></textarea>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label text-muted small fw-semibold">Action Button URL (Optional)</label>
+            <input type="url" id="sys_action_url" class="form-control" placeholder="https://example.com">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label text-muted small fw-semibold">Action Button Label (Optional)</label>
+            <input type="text" id="sys_action_text" class="form-control" placeholder="View Details">
+          </div>
+        </div>
+        <div id="sysEmailAlert" class="d-none alert py-2 small"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-soft" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" id="btnSendSysSubmit" class="btn btn-primary" onclick="submitSendSystemEmail()">
+          <span id="btnSendSysSpinner" class="spinner-border spinner-border-sm me-1 d-none"></span>
+          <i class="bi bi-send me-1" id="btnSendSysIcon"></i> <span id="btnSendSysText">Dispatch Notification</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/layout.js"></script>
+<script src="assets/js/script.js"></script>
+<script>
+  let currentLogsPage = 1;
+  const logsPageLimit = 20;
+
+  function clearLogFilters() {
+    document.getElementById('filterSearch').value = '';
+    document.getElementById('filterType').value = '';
+    document.getElementById('filterStatus').value = '';
+    document.getElementById('filterRefType').value = '';
+    document.getElementById('filterFromDate').value = '';
+    document.getElementById('filterToDate').value = '';
+    loadEmailLogs(1);
+  }
+
+  function exportLogCsv() {
+    const from = document.getElementById('filterFromDate').value;
+    const to = document.getElementById('filterToDate').value;
+    window.location.href = `api/email.php?action=analytics_export&from=${from}&to=${to}`;
+  }
+
+  async function loadEmailLogs(page = 1) {
+    currentLogsPage = page;
+    const tbody = document.getElementById('logsTableBody');
+    const search = document.getElementById('filterSearch').value.trim();
+    const type = document.getElementById('filterType').value;
+    const status = document.getElementById('filterStatus').value;
+    const refType = document.getElementById('filterRefType').value;
+    const fromDate = document.getElementById('filterFromDate').value;
+    const toDate = document.getElementById('filterToDate').value;
+
+    try {
+      const params = { page: currentLogsPage, limit: logsPageLimit };
+      if (search) params.search = search;
+      if (type) params.email_type = type;
+      if (status) params.status = status;
+      if (refType) params.reference_type = refType;
+      if (fromDate) params.from = fromDate;
+      if (toDate) params.to = toDate;
+
+      const res = await window.api.getEmailLogs(params);
+      if (!res || !res.success) return;
+
+      const logs = res.data || [];
+      const pagination = res.pagination || { page: 1, limit: logsPageLimit, total: logs.length, total_pages: 1 };
+      const summary = res.meta && res.meta.summary ? res.meta.summary : {};
+
+      // Update Summary Cards
+      document.getElementById('statTotal').textContent = summary.total_emails || logs.length;
+      document.getElementById('statSent').textContent = summary.sent_emails || 0;
+      document.getElementById('statFailed').textContent = summary.failed_emails || 0;
+      document.getElementById('statQueued').textContent = summary.queued_emails || 0;
+      document.getElementById('statPending').textContent = summary.retry_pending_emails || 0;
+
+      if (logs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted">No email logs found matching search criteria.</td></tr>`;
+        document.getElementById('logsPaginationInfo').textContent = 'Showing 0 of 0 entries';
+        document.getElementById('logsPaginationControls').innerHTML = '';
+        return;
+      }
+
+      tbody.innerHTML = logs.map(l => {
+        let badgeHtml = '<span class="badge bg-secondary">Queued</span>';
+        if (l.status === 'sent') badgeHtml = '<span class="badge bg-success">Sent</span>';
+        if (l.status === 'failed') badgeHtml = `<span class="badge bg-danger">Failed (${l.attempt_count || 1}/3)</span>`;
+
+        const canRetry = l.status === 'failed' && (l.attempt_count < 3);
+
+        return `
+          <tr>
+            <td>
+              <div class="fw-semibold text-dark">${l.recipient_email}</div>
+              <div class="text-muted small">${l.recipient_name || ''}</div>
+            </td>
+            <td><span class="text-truncate d-inline-block" style="max-width: 220px;">${l.subject}</span></td>
+            <td><span class="chip"><i class="bi bi-tag me-1"></i> ${l.email_type}</span></td>
+            <td><span class="badge bg-light text-dark border">${l.reference_type ? (l.reference_type + ' #' + (l.reference_id || '')) : 'N/A'}</span></td>
+            <td>${badgeHtml}</td>
+            <td><span class="small fw-semibold text-muted">${l.attempt_count || 1} / 3</span></td>
+            <td>
+              <div class="small text-dark">${l.sent_at || l.created_at}</div>
+            </td>
+            <td class="text-end">
+              <button class="btn btn-sm btn-outline-secondary py-1 px-2 me-1" onclick="inspectEmailLog(${l.id})" title="Inspect Details">
+                <i class="bi bi-eye"></i>
+              </button>
+              ${canRetry ? `
+                <button class="btn btn-sm btn-outline-warning py-1 px-2 manager-only" onclick="manualRetryEmail(${l.id})" title="Retry Delivery">
+                  <i class="bi bi-arrow-repeat"></i>
+                </button>
+              ` : ''}
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      renderLogsPagination(pagination);
+
+    } catch (err) {
+      console.error(err);
+      tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-danger">Failed to load email history logs.</td></tr>`;
+    }
+  }
+
+  function renderLogsPagination(p) {
+    const info = document.getElementById('logsPaginationInfo');
+    const controls = document.getElementById('logsPaginationControls');
+
+    const start = p.total === 0 ? 0 : (p.page - 1) * p.limit + 1;
+    const end = Math.min(p.page * p.limit, p.total);
+    info.textContent = `Showing ${start} to ${end} of ${p.total} entries`;
+
+    if (p.total_pages <= 1) {
+      controls.innerHTML = '';
+      return;
+    }
+
+    let buttons = '';
+    const prevDisabled = p.page <= 1 ? 'disabled' : '';
+    const nextDisabled = p.page >= p.total_pages ? 'disabled' : '';
+
+    buttons += `<button class="btn btn-sm btn-outline-secondary me-1" ${prevDisabled} onclick="loadEmailLogs(${p.page - 1})"><i class="bi bi-chevron-left"></i></button>`;
+
+    for (let i = 1; i <= p.total_pages; i++) {
+      if (i === 1 || i === p.total_pages || Math.abs(i - p.page) <= 1) {
+        const active = i === p.page ? 'btn-primary' : 'btn-outline-secondary';
+        buttons += `<button class="btn btn-sm ${active} me-1" onclick="loadEmailLogs(${i})">${i}</button>`;
+      }
+    }
+
+    buttons += `<button class="btn btn-sm btn-outline-secondary" ${nextDisabled} onclick="loadEmailLogs(${p.page + 1})"><i class="bi bi-chevron-right"></i></button>`;
+    controls.innerHTML = buttons;
+  }
+
+  async function inspectEmailLog(id) {
+    const modalEl = new bootstrap.Modal(document.getElementById('emailDetailModal'));
+    const body = document.getElementById('emailDetailModalBody');
+    const footer = document.getElementById('emailDetailModalFooter');
+
+    body.innerHTML = '<div class="text-center py-4"><span class="spinner-border spinner-border-sm text-primary"></span> Loading log details...</div>';
+    modalEl.show();
+
+    try {
+      const res = await window.api.getEmailLog(id);
+      if (!res || !res.success || !res.data) {
+        body.innerHTML = '<div class="alert alert-danger py-2 small">Unable to retrieve log details.</div>';
+        return;
+      }
+
+      const l = res.data;
+      const canRetry = l.status === 'failed' && (l.attempt_count < 3);
+
+      body.innerHTML = `
+        <!-- Section 1: Delivery Information -->
+        <div class="mb-4">
+          <h6 class="fw-bold text-primary border-bottom pb-2 mb-3"><i class="bi bi-envelope me-2"></i>1. Delivery Information</h6>
+          <div class="row g-2 small">
+            <div class="col-md-6"><strong>Recipient Email:</strong> <span class="text-dark">${l.recipient_email}</span></div>
+            <div class="col-md-6"><strong>Recipient Name:</strong> <span class="text-dark">${l.recipient_name || 'N/A'}</span></div>
+            <div class="col-md-12"><strong>Subject:</strong> <span class="text-dark">${l.subject}</span></div>
+            <div class="col-md-6"><strong>Email Type:</strong> <span class="chip"><i class="bi bi-tag me-1"></i>${l.email_type}</span></div>
+            <div class="col-md-6"><strong>Status:</strong> <span class="badge ${l.status === 'sent' ? 'bg-success' : 'bg-danger'}">${l.status.toUpperCase()}</span></div>
+          </div>
+        </div>
+
+        <!-- Section 2: Business Reference -->
+        <div class="mb-4">
+          <h6 class="fw-bold text-primary border-bottom pb-2 mb-3"><i class="bi bi-folder2-open me-2"></i>2. Business Reference</h6>
+          <div class="row g-2 small">
+            <div class="col-md-6"><strong>Reference Type:</strong> <span class="text-dark">${l.reference_type || 'None'}</span></div>
+            <div class="col-md-6"><strong>Reference ID:</strong> <span class="text-dark">${l.reference_id || 'N/A'}</span></div>
+            <div class="col-md-12"><strong>Attachment:</strong> <span class="text-dark">${l.attachment_name || 'None'}</span></div>
+          </div>
+        </div>
+
+        <!-- Section 3: Delivery Attempts -->
+        <div class="mb-4">
+          <h6 class="fw-bold text-primary border-bottom pb-2 mb-3"><i class="bi bi-clock-history me-2"></i>3. Delivery Attempts & Timestamps</h6>
+          <div class="row g-2 small">
+            <div class="col-md-4"><strong>Attempt Count:</strong> <span class="fw-bold text-dark">${l.attempt_count || 1} / 3</span></div>
+            <div class="col-md-4"><strong>Created At:</strong> <span class="text-dark">${l.created_at || 'N/A'}</span></div>
+            <div class="col-md-4"><strong>Last Attempt At:</strong> <span class="text-dark">${l.last_attempt_at || 'N/A'}</span></div>
+            <div class="col-md-6"><strong>Next Retry At:</strong> <span class="text-dark">${l.next_retry_at || 'N/A'}</span></div>
+            <div class="col-md-6"><strong>Sent At:</strong> <span class="text-dark">${l.sent_at || 'N/A'}</span></div>
+          </div>
+        </div>
+
+        <!-- Section 4: Failure Information -->
+        ${l.status === 'failed' ? `
+          <div class="mb-2">
+            <h6 class="fw-bold text-danger border-bottom pb-2 mb-3"><i class="bi bi-exclamation-triangle me-2"></i>4. Failure Information</h6>
+            <div class="p-3 bg-light border border-danger rounded text-danger small">
+              <strong>Error Message:</strong> ${l.error_message || 'Delivery attempt failed.'}
+            </div>
+          </div>
+        ` : ''}
+      `;
+
+      footer.innerHTML = `
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+        ${canRetry ? `
+          <button type="button" class="btn btn-warning btn-sm manager-only" onclick="manualRetryEmail(${l.id})">
+            <i class="bi bi-arrow-repeat me-1"></i> Retry Delivery
+          </button>
+        ` : ''}
+      `;
+
+    } catch (err) {
+      body.innerHTML = '<div class="alert alert-danger py-2 small">Failed to load log details.</div>';
+    }
+  }
+
+  async function manualRetryEmail(id) {
+    if (!confirm(`Are you sure you want to retry email log #${id}?`)) return;
+
+    try {
+      const res = await window.api.retryEmail(id);
+      if (res && res.success) {
+        showToast('Email retry dispatched successfully.', 'success');
+        loadEmailLogs(currentLogsPage);
+        const modalEl = bootstrap.Modal.getInstance(document.getElementById('emailDetailModal'));
+        if (modalEl) modalEl.hide();
+      } else {
+        showToast(res.message || 'Retry failed.', 'danger');
+      }
+    } catch (err) {
+      showToast(err.message || 'Failed to retry email.', 'danger');
+    }
+  }
+
+  function openSystemEmailModal() {
+    document.getElementById('sys_recipient_email').value = '';
+    document.getElementById('sys_recipient_name').value = '';
+    document.getElementById('sys_title').value = '';
+    document.getElementById('sys_message').value = '';
+    document.getElementById('sys_action_url').value = '';
+    document.getElementById('sys_action_text').value = '';
+    document.getElementById('sysEmailAlert').className = 'd-none';
+    new bootstrap.Modal(document.getElementById('systemEmailModal')).show();
+  }
+
+  async function submitSendSystemEmail() {
+    const recipient_email = document.getElementById('sys_recipient_email').value.trim();
+    const recipient_name = document.getElementById('sys_recipient_name').value.trim();
+    const title = document.getElementById('sys_title').value.trim();
+    const message = document.getElementById('sys_message').value.trim();
+    const action_url = document.getElementById('sys_action_url').value.trim();
+    const action_text = document.getElementById('sys_action_text').value.trim();
+    const alertEl = document.getElementById('sysEmailAlert');
+
+    if (!recipient_email || !title || !message) {
+      alertEl.className = 'alert alert-danger py-2 small d-block';
+      alertEl.textContent = 'Please fill out all required fields.';
+      return;
+    }
+
+    try {
+      const res = await window.api.sendSystemEmail({
+        recipient_email, recipient_name, title, message, action_url, action_text
+      });
+
+      if (res && res.success) {
+        showToast('System notification email dispatched successfully.', 'success');
+        bootstrap.Modal.getInstance(document.getElementById('systemEmailModal')).hide();
+        loadEmailLogs(1);
+      } else {
+        alertEl.className = 'alert alert-danger py-2 small d-block';
+        alertEl.textContent = res.message || 'Failed to send notification.';
+      }
+    } catch (err) {
+      alertEl.className = 'alert alert-danger py-2 small d-block';
+      alertEl.textContent = err.message || 'System notification error.';
+    }
+  }
+
+  function showToast(msg, type = 'info') {
+    const alertEl = document.getElementById('emailLogAlert');
+    alertEl.className = `alert alert-${type} py-2 mb-3 small d-block`;
+    alertEl.textContent = msg;
+    setTimeout(() => { alertEl.className = 'd-none'; }, 4000);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadEmailLogs(1);
+  });
+</script>
+</body>
+</html>

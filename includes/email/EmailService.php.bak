@@ -1,0 +1,204 @@
+<?php
+
+declare(strict_types=1);
+
+require_once __DIR__ . '/MailConfig.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception as PHPMailerException;
+
+class EmailService
+{
+    private MailConfig $mailConfig;
+
+    public function __construct(?MailConfig $mailConfig = null)
+    {
+        $this->mailConfig = $mailConfig ?? new MailConfig();
+    }
+
+    /**
+     * Send email using PHPMailer & SMTP
+     *
+     * Expected $params array structure:
+     * [
+     *   'to' => 'customer@example.com', // string or array of emails
+     *   'subject' => 'Your Quotation',
+     *   'html' => '<h1>Quotation</h1>',
+     *   'text' => 'Plain text version',
+     *   'reply_to' => 'billing@example.com', // optional
+     *   'attachments' => [                  // optional
+     *       ['path' => '/path/to/file.pdf', 'name' => 'Quotation-QT-1001.pdf']
+     *   ]
+     * ]
+     */
+    public function send(array $params): array
+    {
+        // 1. Validate Recipient Email(s)
+        $to = $params['to'] ?? null;
+        $recipients = [];
+
+        if (is_string($to)) {
+            $to = trim($to);
+            if ($to !== '') {
+                $recipients[] = $to;
+            }
+        } elseif (is_array($to)) {
+            foreach ($to as $email) {
+                if (is_string($email) && trim($email) !== '') {
+                    $recipients[] = trim($email);
+                }
+            }
+        }
+
+        if ($recipients === []) {
+            return [
+                'success' => false,
+                'message' => 'Unable to send email. Invalid recipient address.'
+            ];
+        }
+
+        foreach ($recipients as $email) {
+            if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+                return [
+                    'success' => false,
+                    'message' => 'Unable to send email. Invalid recipient email format.'
+                ];
+            }
+        }
+
+        // 2. Validate SMTP Configuration
+        if (!$this->mailConfig->isConfigured()) {
+            error_log('[EmailService] SMTP configuration is incomplete or missing.');
+            return [
+                'success' => false,
+                'message' => 'Unable to send email. SMTP configuration is missing.'
+            ];
+        }
+
+        // 2. Validate Subject & Body
+        $subject = trim((string) ($params['subject'] ?? ''));
+        $htmlBody = (string) ($params['html'] ?? '');
+        $textBody = (string) ($params['text'] ?? strip_tags($htmlBody));
+
+        if ($subject === '') {
+            return [
+                'success' => false,
+                'message' => 'Unable to send email. Email subject is required.'
+            ];
+        }
+
+        if ($htmlBody === '' && $textBody === '') {
+            return [
+                'success' => false,
+                'message' => 'Unable to send email. Email body content is required.'
+            ];
+        }
+
+        // 3. Validate Attachments
+        $attachments = $params['attachments'] ?? [];
+        $validatedAttachments = [];
+
+        if (is_array($attachments)) {
+            foreach ($attachments as $att) {
+                if (!is_array($att) || empty($att['path'])) {
+                    continue;
+                }
+                $path = (string) $att['path'];
+                $name = (string) ($att['name'] ?? basename($path));
+
+                // Security check: Must not be remote URL & must exist locally
+                if (filter_var($path, FILTER_VALIDATE_URL) !== false) {
+                    error_log("[EmailService] Security Warning: Remote attachment URL blocked: {$path}");
+                    return [
+                        'success' => false,
+                        'message' => 'Unable to send email. Remote attachment URLs are not permitted.'
+                    ];
+                }
+
+                if (!file_exists($path) || !is_readable($path)) {
+                    error_log("[EmailService] Attachment file not found or unreadable: {$path}");
+                    return [
+                        'success' => false,
+                        'message' => 'Unable to send email. Attachment file not found.'
+                    ];
+                }
+
+                $validatedAttachments[] = ['path' => $path, 'name' => $name];
+            }
+        }
+
+        // 4. Configure PHPMailer & Send
+        $credentials = $this->mailConfig->getSmtpCredentials();
+
+        try {
+            $mail = new PHPMailer(true);
+
+            // SMTP Setup
+            $mail->isSMTP();
+            $mail->Host = $credentials['host'];
+            $mail->Port = $credentials['port'];
+            $mail->SMTPAuth = true;
+            $mail->Username = $credentials['username'];
+            $mail->Password = $credentials['password'];
+
+            // Encryption Setup
+            if ($credentials['encryption'] === 'ssl') {
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+            } else {
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            }
+
+            // Sender & Reply-To
+            $mail->setFrom($credentials['from_address'], $credentials['from_name']);
+
+            $replyTo = $params['reply_to'] ?? null;
+            if (is_string($replyTo) && filter_var(trim($replyTo), FILTER_VALIDATE_EMAIL) !== false) {
+                $mail->addReplyTo(trim($replyTo));
+            }
+
+            // Recipients
+            foreach ($recipients as $email) {
+                $mail->addAddress($email);
+            }
+
+            // Content
+            if ($htmlBody !== '') {
+                $mail->isHTML(true);
+                $mail->Body = $htmlBody;
+                $mail->AltBody = $textBody;
+            } else {
+                $mail->isHTML(false);
+                $mail->Body = $textBody;
+            }
+
+            $mail->Subject = $subject;
+
+            // Add Attachments
+            foreach ($validatedAttachments as $att) {
+                $mail->addAttachment($att['path'], $att['name']);
+            }
+
+            // Send Email
+            $mail->send();
+
+            return [
+                'success' => true,
+                'message' => 'Email sent successfully.'
+            ];
+
+        } catch (PHPMailerException $e) {
+            // Log error details internally without exposing SMTP credentials
+            error_log('[EmailService] PHPMailer Error: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => 'Unable to send email.'
+            ];
+        } catch (Throwable $e) {
+            error_log('[EmailService] Unexpected Error: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => 'Unable to send email.'
+            ];
+        }
+    }
+}

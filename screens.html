@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Billboard / TV Screens · AdsDash</title>
+<title>Billboard / TV Screens · Bhimavaram Digitals</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -21,171 +21,103 @@
     <div class="page">
       <div class="page-head">
         <div>
-          <div class="crumb">AdsDash <span class="breadcrumb-sep">/</span> Billboard / TV Screens</div>
+          <div class="crumb">Bhimavaram Digitals <span class="breadcrumb-sep">/</span> Billboard / TV Screens</div>
           <h1>Screen Inventory</h1>
         </div>
-        <button class="btn btn-amber" data-bs-toggle="modal" data-bs-target="#screenModal"><i class="bi bi-plus-lg"></i> Add Screen</button>
+        <button class="btn btn-amber" data-bs-toggle="modal" data-bs-target="#screenModal" onclick="openNewScreen()"><i class="bi bi-plus-lg"></i> Add Screen</button>
       </div>
 
-      <div class="d-flex gap-2 mb-3 flex-wrap">
-        <select class="form-select form-select-sm" style="width:auto;"><option>All types</option><option>Billboard</option><option>TV Display</option></select>
-        <select class="form-select form-select-sm" style="width:auto;"><option>All cities</option><option>Hyderabad</option><option>Chennai</option><option>Bengaluru</option><option>Pune</option></select>
-        <select class="form-select form-select-sm" style="width:auto;"><option>All status</option><option>Available</option><option>Booked</option><option>Maintenance</option></select>
+      <div class="d-flex gap-2 mb-3 flex-wrap align-items-center">
+        <select class="form-select form-select-sm" id="filterType" style="width:auto;" onchange="loadScreens()">
+          <option value="">All types</option>
+          <option value="tv_display">TV Display</option>
+          <option value="billboard">Billboard</option>
+          <option value="digital_board">Digital Board</option>
+          <option value="other">Other</option>
+        </select>
+        <select class="form-select form-select-sm" id="filterCity" style="width:auto;" onchange="loadScreens()">
+          <option value="">All cities</option>
+          <option value="Bhimavaram">Bhimavaram</option>
+          <option value="Hyderabad">Hyderabad</option>
+          <option value="Chennai">Chennai</option>
+          <option value="Bengaluru">Bengaluru</option>
+        </select>
+        <select class="form-select form-select-sm" id="filterStatus" style="width:auto;" onchange="loadScreens()">
+          <option value="">All status</option>
+          <option value="available">Available</option>
+          <option value="maintenance">Maintenance</option>
+          <option value="inactive">Inactive</option>
+        </select>
+        <div class="input-group input-group-sm ms-auto" style="width:220px;">
+          <input type="text" class="form-control" placeholder="Search screen..." id="screenSearchInput" onkeyup="if(event.key==='Enter') loadScreens()">
+          <button class="btn btn-outline-secondary" type="button" onclick="loadScreens()"><i class="bi bi-search"></i></button>
+        </div>
       </div>
 
-      <!-- BACKEND NOTE: GET api/screens.php → [{id,name,type,dimensions,city,rate_month,status,image_url}] -->
-      <div class="row g-3">
-
-        <div class="col-md-6 col-xl-4">
-          <div class="card h-100">
-            <div class="screen-thumb d-flex align-items-center justify-content-center"><i class="bi bi-signpost-2-fill" style="font-size:34px;color:#C7CBE0;"></i></div>
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-start">
-                <h6 class="mb-1">Gachibowli Main Rd</h6>
-                <span class="badge-status st-active">Available</span>
-              </div>
-              <div class="text-muted mb-2" style="font-size:12.5px;"><i class="bi bi-geo-alt"></i> Hyderabad · Billboard · 40×20 ft</div>
-              <div class="d-flex justify-content-between align-items-center">
-                <div class="fw-semibold">₹85,000<span class="text-muted fw-normal" style="font-size:12px;"> /month</span></div>
-                <div>
-                  <button class="action-icon" title="Edit"><i class="bi bi-pencil"></i></button>
-                  <button class="action-icon" title="Booking calendar"><i class="bi bi-calendar3"></i></button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-6 col-xl-4">
-          <div class="card h-100">
-            <div class="screen-thumb d-flex align-items-center justify-content-center"><i class="bi bi-signpost-2-fill" style="font-size:34px;color:#C7CBE0;"></i></div>
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-start">
-                <h6 class="mb-1">Hitec City Junction</h6>
-                <span class="badge-status st-pending">Booked</span>
-              </div>
-              <div class="text-muted mb-2" style="font-size:12.5px;"><i class="bi bi-geo-alt"></i> Hyderabad · Billboard · 30×15 ft</div>
-              <div class="d-flex justify-content-between align-items-center">
-                <div class="fw-semibold">₹65,000<span class="text-muted fw-normal" style="font-size:12px;"> /month</span></div>
-                <div>
-                  <button class="action-icon" title="Edit"><i class="bi bi-pencil"></i></button>
-                  <button class="action-icon" title="Booking calendar"><i class="bi bi-calendar3"></i></button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-6 col-xl-4">
-          <div class="card h-100">
-            <div class="screen-thumb d-flex align-items-center justify-content-center"><i class="bi bi-display" style="font-size:34px;color:#C7CBE0;"></i></div>
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-start">
-                <h6 class="mb-1">Phoenix Mall Screen 3</h6>
-                <span class="badge-status st-pending">Booked</span>
-              </div>
-              <div class="text-muted mb-2" style="font-size:12.5px;"><i class="bi bi-geo-alt"></i> Chennai · TV Display · 55" LED</div>
-              <div class="d-flex justify-content-between align-items-center">
-                <div class="fw-semibold">₹68,500<span class="text-muted fw-normal" style="font-size:12px;"> /month</span></div>
-                <div>
-                  <button class="action-icon" title="Edit"><i class="bi bi-pencil"></i></button>
-                  <button class="action-icon" title="Booking calendar"><i class="bi bi-calendar3"></i></button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-6 col-xl-4">
-          <div class="card h-100">
-            <div class="screen-thumb d-flex align-items-center justify-content-center"><i class="bi bi-signpost-2-fill" style="font-size:34px;color:#C7CBE0;"></i></div>
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-start">
-                <h6 class="mb-1">Kondapur Signal</h6>
-                <span class="badge-status st-active">Available</span>
-              </div>
-              <div class="text-muted mb-2" style="font-size:12.5px;"><i class="bi bi-geo-alt"></i> Hyderabad · Billboard · 25×12 ft</div>
-              <div class="d-flex justify-content-between align-items-center">
-                <div class="fw-semibold">₹42,000<span class="text-muted fw-normal" style="font-size:12px;"> /month</span></div>
-                <div>
-                  <button class="action-icon" title="Edit"><i class="bi bi-pencil"></i></button>
-                  <button class="action-icon" title="Booking calendar"><i class="bi bi-calendar3"></i></button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-6 col-xl-4">
-          <div class="card h-100">
-            <div class="screen-thumb d-flex align-items-center justify-content-center"><i class="bi bi-display" style="font-size:34px;color:#C7CBE0;"></i></div>
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-start">
-                <h6 class="mb-1">Forum Mall Screen 1</h6>
-                <span class="badge-status st-pending">Booked</span>
-              </div>
-              <div class="text-muted mb-2" style="font-size:12.5px;"><i class="bi bi-geo-alt"></i> Bengaluru · TV Display · 65" LED</div>
-              <div class="d-flex justify-content-between align-items-center">
-                <div class="fw-semibold">₹95,000<span class="text-muted fw-normal" style="font-size:12px;"> /month</span></div>
-                <div>
-                  <button class="action-icon" title="Edit"><i class="bi bi-pencil"></i></button>
-                  <button class="action-icon" title="Booking calendar"><i class="bi bi-calendar3"></i></button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-6 col-xl-4">
-          <div class="card h-100">
-            <div class="screen-thumb d-flex align-items-center justify-content-center"><i class="bi bi-signpost-2-fill" style="font-size:34px;color:#C7CBE0;"></i></div>
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-start">
-                <h6 class="mb-1">Outer Ring Rd, Exit 12</h6>
-                <span class="badge-status st-rejected">Maintenance</span>
-              </div>
-              <div class="text-muted mb-2" style="font-size:12.5px;"><i class="bi bi-geo-alt"></i> Hyderabad · Billboard · 45×20 ft</div>
-              <div class="d-flex justify-content-between align-items-center">
-                <div class="fw-semibold">₹1,10,000<span class="text-muted fw-normal" style="font-size:12px;"> /month</span></div>
-                <div>
-                  <button class="action-icon" title="Edit"><i class="bi bi-pencil"></i></button>
-                  <button class="action-icon" title="Booking calendar"><i class="bi bi-calendar3"></i></button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
+      <div class="row g-3" id="screensContainer">
+        <div class="col-12 text-center py-5 text-muted">Loading screen inventory...</div>
       </div>
     </div>
   </main>
 </div>
 
+<!-- Add / Edit Screen Modal -->
 <div class="modal fade" id="screenModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
-      <div class="modal-header"><h5 class="modal-title">Add Screen / Billboard</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
-      <!-- BACKEND NOTE: POST api/screens.php -->
-      <form>
+      <div class="modal-header">
+        <h5 class="modal-title" id="screenModalTitle">Add Screen / Billboard</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="screenForm">
+        <input type="hidden" id="sf_id">
         <div class="modal-body">
-          <div class="mb-3"><label class="form-label">Site Name *</label><input type="text" class="form-control" placeholder="e.g. Banjara Hills Circle"></div>
+          <div class="mb-3">
+            <label class="form-label">Screen Name / Location *</label>
+            <input type="text" class="form-control" id="sf_name" placeholder="e.g. Phoenix Mall Screen 3" required>
+          </div>
           <div class="row">
-            <div class="col-md-6 mb-3"><label class="form-label">Type *</label>
-              <select class="form-select"><option>Billboard</option><option>TV Display</option></select>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Type *</label>
+              <select class="form-select" id="sf_type" required>
+                <option value="tv_display">TV Display</option>
+                <option value="billboard">Billboard</option>
+                <option value="digital_board">Digital Board</option>
+                <option value="other">Other</option>
+              </select>
             </div>
-            <div class="col-md-6 mb-3"><label class="form-label">City *</label><input type="text" class="form-control"></div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">City *</label>
+              <input type="text" class="form-control" id="sf_city" required>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Location Address / Landmark</label>
+            <input type="text" class="form-control" id="sf_location" placeholder="e.g. Main Entrance, Floor 2">
           </div>
           <div class="row">
-            <div class="col-md-6 mb-3"><label class="form-label">Dimensions / Size</label><input type="text" class="form-control" placeholder="e.g. 40×20 ft or 55&quot; LED"></div>
-            <div class="col-md-6 mb-3"><label class="form-label">Rate / Month (₹) *</label><input type="number" class="form-control"></div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Dimensions / Size</label>
+              <input type="text" class="form-control" id="sf_dimensions" placeholder="e.g. 55 inch LED">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Rate / Month (₹) *</label>
+              <input type="number" step="0.01" class="form-control" id="sf_rate" required>
+            </div>
           </div>
-          <div class="mb-1"><label class="form-label">Status</label>
-            <select class="form-select"><option>Available</option><option>Booked</option><option>Maintenance</option></select>
+          <div class="mb-1">
+            <label class="form-label">Status</label>
+            <select class="form-select" id="sf_status">
+              <option value="available">Available</option>
+              <option value="maintenance">Maintenance</option>
+              <option value="inactive">Inactive</option>
+            </select>
           </div>
+          <div class="alert alert-danger py-2 mt-3" style="display:none;font-size:12.5px;" id="sf_error"></div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline-soft" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save Screen</button>
+          <button type="submit" class="btn btn-primary" id="sf_submit_btn">Save Screen</button>
         </div>
       </form>
     </div>
@@ -193,7 +125,165 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/api.js"></script>
 <script src="assets/js/layout.js"></script>
 <script src="assets/js/script.js"></script>
+<script>
+  let screensList = [];
+
+  function formatCurrency(amt) {
+    return '₹' + Number(amt || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  async function loadScreens() {
+    const container = document.getElementById('screensContainer');
+    const type = document.getElementById('filterType').value;
+    const city = document.getElementById('filterCity').value;
+    const status = document.getElementById('filterStatus').value;
+    const search = document.getElementById('screenSearchInput').value.trim();
+
+    try {
+      let params = new URLSearchParams({ limit: 100 });
+      if (type) params.append('type', type);
+      if (city) params.append('city', city);
+      if (status) params.append('status', status);
+      if (search) params.append('search', search);
+
+      const res = await window.api.get(`/screens.php?${params.toString()}`);
+      if (!res || !res.success) return;
+
+      screensList = res.data || [];
+
+      if (screensList.length === 0) {
+        container.innerHTML = `<div class="col-12 text-center py-5 text-muted">No screens found matching the filters.</div>`;
+        return;
+      }
+
+      container.innerHTML = screensList.map(s => {
+        let badgeClass = 'st-active';
+        if (s.status === 'maintenance') badgeClass = 'st-pending';
+        if (s.status === 'inactive') badgeClass = 'st-rejected';
+
+        const iconClass = (s.screen_type === 'billboard' || s.screen_type === 'digital_board')
+          ? 'bi-signpost-2-fill'
+          : 'bi-display';
+
+        return `
+          <div class="col-md-6 col-xl-4">
+            <div class="card h-100">
+              <div class="screen-thumb d-flex align-items-center justify-content-center">
+                <i class="bi ${iconClass}" style="font-size:34px;color:#C7CBE0;"></i>
+              </div>
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                  <h6 class="mb-1">${s.name}</h6>
+                  <span class="badge-status ${badgeClass}">${s.status}</span>
+                </div>
+                <div class="text-muted mb-2" style="font-size:12.5px;">
+                  <i class="bi bi-geo-alt"></i> ${s.city || 'N/A'} · ${s.screen_type} · ${s.dimensions || 'N/A'}
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="fw-semibold">${formatCurrency(s.monthly_rate)}<span class="text-muted fw-normal" style="font-size:12px;"> /month</span></div>
+                  <div>
+                    <button class="action-icon me-1" title="Edit" onclick="openEditScreen(${s.id})"><i class="bi bi-pencil"></i></button>
+                    <button class="action-icon text-danger" title="Delete" onclick="deleteScreen(${s.id}, '${s.name.replace(/'/g, "\\'")}')"><i class="bi bi-trash"></i></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+    } catch (err) {
+      container.innerHTML = `<div class="col-12 text-center py-5 text-danger">Failed to load screens: ${err.message}</div>`;
+    }
+  }
+
+  function openNewScreen() {
+    document.getElementById('screenModalTitle').textContent = 'Add Screen / Billboard';
+    document.getElementById('sf_id').value = '';
+    document.getElementById('screenForm').reset();
+    document.getElementById('sf_error').style.display = 'none';
+  }
+
+  function openEditScreen(id) {
+    const s = screensList.find(item => item.id === id);
+    if (!s) return;
+
+    document.getElementById('screenModalTitle').textContent = 'Edit Screen';
+    document.getElementById('sf_id').value = s.id;
+    document.getElementById('sf_name').value = s.name;
+    document.getElementById('sf_type').value = s.screen_type;
+    document.getElementById('sf_city').value = s.city || '';
+    document.getElementById('sf_location').value = s.location || '';
+    document.getElementById('sf_dimensions').value = s.dimensions || '';
+    document.getElementById('sf_rate').value = s.monthly_rate;
+    document.getElementById('sf_status').value = s.status || 'available';
+    document.getElementById('sf_error').style.display = 'none';
+
+    new bootstrap.Modal(document.getElementById('screenModal')).show();
+  }
+
+  async function deleteScreen(id, name) {
+    if (!confirmAction(`Are you sure you want to delete screen "${name}"?`)) return;
+
+    try {
+      const res = await window.api.delete(`/screens.php?id=${id}`);
+      if (res && res.success) {
+        loadScreens();
+      }
+    } catch (err) {
+      alert(`Delete failed: ${err.message}`);
+    }
+  }
+
+  document.getElementById('screenForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const id = document.getElementById('sf_id').value;
+    const errEl = document.getElementById('sf_error');
+    const submitBtn = document.getElementById('sf_submit_btn');
+
+    errEl.style.display = 'none';
+
+    const payload = {
+      name: document.getElementById('sf_name').value.trim(),
+      screen_type: document.getElementById('sf_type').value,
+      city: document.getElementById('sf_city').value.trim(),
+      location: document.getElementById('sf_location').value.trim(),
+      dimensions: document.getElementById('sf_dimensions').value.trim(),
+      monthly_rate: parseFloat(document.getElementById('sf_rate').value) || 0,
+      status: document.getElementById('sf_status').value
+    };
+
+    submitBtn.disabled = true;
+
+    try {
+      let res;
+      if (id) {
+        res = await window.api.put(`/screens.php?id=${id}`, payload);
+      } else {
+        res = await window.api.post('/screens.php', payload);
+      }
+
+      if (res && res.success) {
+        const modalEl = document.getElementById('screenModal');
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        if (modalInstance) modalInstance.hide();
+        loadScreens();
+      } else {
+        errEl.textContent = (res && res.message) ? res.message : 'Save screen failed.';
+        errEl.style.display = 'block';
+      }
+    } catch (err) {
+      errEl.textContent = err.message || 'Error saving screen.';
+      errEl.style.display = 'block';
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', loadScreens);
+</script>
 </body>
 </html>
