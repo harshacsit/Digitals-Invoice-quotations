@@ -20,6 +20,53 @@ require_once __DIR__ . '/../includes/auth.php';
 
 requireAuth();
 
+// Settings keys to logical groups mapping
+$keyToGroup = [
+    // Company Profile
+    'company_name' => 'company',
+    'company_tagline' => 'company',
+    'company_address' => 'company',
+    'company_phone' => 'company',
+    'company_email' => 'company',
+    'company_gstin' => 'company',
+    'company_website' => 'company',
+    'bank_name' => 'company',
+    'bank_account_number' => 'company',
+    'bank_ifsc' => 'company',
+    'logo_path' => 'company',
+
+    // Quotation & Invoice Settings
+    'quotation_prefix' => 'quotation',
+    'invoice_prefix' => 'quotation',
+    'quotation_validity_days' => 'quotation',
+    'payment_due_days' => 'quotation',
+    'terms_conditions' => 'quotation',
+
+    // Tax & Currency
+    'default_gst_rate' => 'tax',
+    'currency' => 'tax',
+
+    // Notifications
+    'notif_quote_approved' => 'notifications',
+    'notif_invoice_due' => 'notifications',
+    'notif_daily_summary' => 'notifications',
+    'notif_booking_conflict' => 'notifications',
+
+    // Templates
+    'quotation_template_filename' => 'templates',
+    'quotation_template_orig_name' => 'templates',
+    'quotation_template_mime' => 'templates',
+    'quotation_template_size' => 'templates',
+    'quotation_template_updated' => 'templates',
+    'quotation_template_active' => 'templates',
+    'invoice_template_filename' => 'templates',
+    'invoice_template_orig_name' => 'templates',
+    'invoice_template_mime' => 'templates',
+    'invoice_template_size' => 'templates',
+    'invoice_template_updated' => 'templates',
+    'invoice_template_active' => 'templates',
+];
+
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $action = $_GET['action'] ?? null;
 
@@ -97,22 +144,31 @@ function handleGetSettings(PDO $pdo): void
     // Ensure settings table exists (auto-bootstrap)
     ensureSettingsTable($pdo);
 
+    global $keyToGroup;
+
     $group = isset($_GET['group']) ? trim((string) $_GET['group']) : null;
 
+    // Fetch all setting_key and setting_value from DB
+    $stmt = $pdo->query('SELECT setting_key, setting_value FROM settings');
+    $rows = $stmt->fetchAll(PDO::FETCH_KEY_PAIR) ?: [];
+
     if ($group !== null && $group !== '') {
-        $stmt = $pdo->prepare('SELECT `key`, `value` FROM settings WHERE `group` = :g ORDER BY `key`');
-        $stmt->bindValue(':g', $group, PDO::PARAM_STR);
-        $stmt->execute();
-        $rows = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
-        sendSuccessResponse('Settings fetched.', ['group' => $group, 'settings' => $rows]);
+        // Filter by group
+        $filtered = [];
+        foreach ($rows as $k => $v) {
+            $mappedGroup = $keyToGroup[$k] ?? 'general';
+            if ($mappedGroup === $group) {
+                $filtered[$k] = $v;
+            }
+        }
+        sendSuccessResponse('Settings fetched.', ['group' => $group, 'settings' => $filtered]);
     }
 
-    $stmt = $pdo->query('SELECT `group`, `key`, `value` FROM settings ORDER BY `group`, `key`');
-    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
+    // Group all settings in memory
     $grouped = [];
-    foreach ($rows as $row) {
-        $grouped[$row['group']][$row['key']] = $row['value'];
+    foreach ($rows as $k => $v) {
+        $mappedGroup = $keyToGroup[$k] ?? 'general';
+        $grouped[$mappedGroup][$k] = $v;
     }
 
     sendSuccessResponse('All settings fetched.', $grouped);
@@ -161,8 +217,8 @@ function handleSaveSettings(PDO $pdo): void
         sendErrorResponse('Invalid settings group. Allowed: ' . implode(', ', $allowedGroups), 400);
     }
 
-    $upsertSql = 'INSERT INTO settings (`group`, `key`, `value`) VALUES (:g, :k, :v)
-                  ON DUPLICATE KEY UPDATE `value` = VALUES(`value`), updated_at = CURRENT_TIMESTAMP';
+    $upsertSql = 'INSERT INTO settings (setting_key, setting_value) VALUES (:k, :v)
+                  ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = CURRENT_TIMESTAMP';
     $stmt = $pdo->prepare($upsertSql);
 
     $pdo->beginTransaction();
@@ -173,7 +229,6 @@ function handleSaveSettings(PDO $pdo): void
 
             if ($key === '') continue;
 
-            $stmt->bindValue(':g', $group, PDO::PARAM_STR);
             $stmt->bindValue(':k', $key, PDO::PARAM_STR);
             $stmt->bindValue(':v', $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
             $stmt->execute();
@@ -263,11 +318,10 @@ function handleUploadTemplate(PDO $pdo): void
     }
 
     // ── Persist metadata in settings table ────────────────────────────────────
-    $upsertSql = 'INSERT INTO settings (`group`, `key`, `value`) VALUES (:g, :k, :v)
-                  ON DUPLICATE KEY UPDATE `value` = VALUES(`value`), updated_at = CURRENT_TIMESTAMP';
+    $upsertSql = 'INSERT INTO settings (setting_key, setting_value) VALUES (:k, :v)
+                  ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = CURRENT_TIMESTAMP';
     $stmt = $pdo->prepare($upsertSql);
 
-    $metaGroup = 'templates';
     $now       = date('Y-m-d H:i:s');
 
     foreach ([
@@ -278,7 +332,6 @@ function handleUploadTemplate(PDO $pdo): void
         $type . '_template_updated'   => $now,
         $type . '_template_active'    => 'custom',
     ] as $key => $value) {
-        $stmt->bindValue(':g', $metaGroup, PDO::PARAM_STR);
         $stmt->bindValue(':k', $key, PDO::PARAM_STR);
         $stmt->bindValue(':v', $value, PDO::PARAM_STR);
         $stmt->execute();
@@ -307,7 +360,7 @@ function handleGetTemplate(PDO $pdo): void
     }
 
     $stmt = $pdo->prepare(
-        'SELECT `key`, `value` FROM settings WHERE `group` = "templates" AND `key` LIKE :prefix ORDER BY `key`'
+        'SELECT setting_key, setting_value FROM settings WHERE setting_key LIKE :prefix ORDER BY setting_key'
     );
     $stmt->bindValue(':prefix', $type . '_template_%', PDO::PARAM_STR);
     $stmt->execute();
@@ -364,7 +417,7 @@ function handleResetTemplate(PDO $pdo): void
 
     // Remove metadata from settings table
     $prefix = $type . '_template_%';
-    $stmt = $pdo->prepare('DELETE FROM settings WHERE `group` = "templates" AND `key` LIKE :prefix');
+    $stmt = $pdo->prepare('DELETE FROM settings WHERE setting_key LIKE :prefix');
     $stmt->bindValue(':prefix', $prefix, PDO::PARAM_STR);
     $stmt->execute();
 
@@ -381,12 +434,12 @@ function ensureSettingsTable(PDO $pdo): void
     $checked = true;
 
     $pdo->exec("CREATE TABLE IF NOT EXISTS settings (
-        id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        `group`    VARCHAR(50)  NOT NULL,
-        `key`      VARCHAR(100) NOT NULL,
-        `value`    TEXT         NULL,
-        created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        UNIQUE KEY uq_group_key (`group`, `key`)
+        id            BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        setting_key   VARCHAR(100) NOT NULL,
+        setting_value TEXT         NULL,
+        updated_by    BIGINT UNSIGNED NULL,
+        created_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        UNIQUE KEY uq_setting_key (setting_key)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 }

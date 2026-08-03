@@ -74,7 +74,9 @@
     try {
       const res = await window.api.login(email, password);
       if (res && res.success) {
-        window.location.href = 'index.html';
+        const params = new URLSearchParams(window.location.search);
+        const redirect = params.get('redirect');
+        window.location.href = redirect ? decodeURIComponent(redirect) : 'index.html';
       } else {
         errEl.textContent = (res && res.message) ? res.message : 'Invalid email or password.';
         errEl.style.display = 'block';

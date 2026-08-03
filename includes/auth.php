@@ -116,6 +116,12 @@ function requireAuth(): void
 {
     initSession();
     if (!isAuthenticated()) {
+        $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+        if (str_contains($scriptName, '-pdf.php')) {
+            $redirectUrl = 'login.html?redirect=' . urlencode($_SERVER['REQUEST_URI'] ?? '');
+            header('Location: ' . $redirectUrl);
+            exit;
+        }
         sendErrorResponse('Authentication required.', 401);
     }
 }

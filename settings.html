@@ -46,15 +46,16 @@
             <div class="card-header">Company Profile</div>
             <div class="card-body">
               <div class="row">
-                <div class="col-md-6 mb-3"><label class="form-label">Company Name</label><input type="text" class="form-control" value="Ad Screening Co. Pvt. Ltd."></div>
-                <div class="col-md-6 mb-3"><label class="form-label">GSTIN</label><input type="text" class="form-control" value="36AACCA1234B1Z5"></div>
+                <div class="col-md-6 mb-3"><label class="form-label">Company Name</label><input type="text" class="form-control" id="cfg_company_name" value=""></div>
+                <div class="col-md-6 mb-3"><label class="form-label">GSTIN</label><input type="text" class="form-control" id="cfg_company_gstin" value=""></div>
               </div>
-              <div class="mb-3"><label class="form-label">Registered Address</label><textarea class="form-control" rows="2">4th Floor, Cyber Towers, Hitec City, Hyderabad, Telangana 500081</textarea></div>
+              <div class="mb-3"><label class="form-label">Registered Address</label><textarea class="form-control" id="cfg_company_address" rows="2"></textarea></div>
               <div class="row">
-                <div class="col-md-6 mb-3"><label class="form-label">Support Email</label><input type="email" class="form-control" value="accounts@adscreening.co.in"></div>
-                <div class="col-md-6 mb-3"><label class="form-label">Support Phone</label><input type="tel" class="form-control" value="+91 40 4567 8900"></div>
+                <div class="col-md-6 mb-3"><label class="form-label">Support Email</label><input type="email" class="form-control" id="cfg_company_email" value=""></div>
+                <div class="col-md-6 mb-3"><label class="form-label">Support Phone</label><input type="tel" class="form-control" id="cfg_company_phone" value=""></div>
               </div>
-              <div class="mb-1"><label class="form-label">Company Logo (used on PDF quotations & invoices)</label><input type="file" class="form-control"></div>
+              <div class="mb-3"><label class="form-label">Website</label><input type="text" class="form-control" id="cfg_company_website" value=""></div>
+              <div class="mb-1"><label class="form-label">Company Logo (used on PDF quotations & invoices)</label><input type="file" class="form-control" id="cfg_company_logo"></div>
             </div>
           </div>
 
@@ -62,16 +63,14 @@
             <div class="card-header">Quotation & Invoice Settings</div>
             <div class="card-body">
               <div class="row">
-                <div class="col-md-6 mb-3"><label class="form-label">Quotation Number Prefix</label><input type="text" class="form-control" value="QT-"></div>
-                <div class="col-md-6 mb-3"><label class="form-label">Invoice Number Prefix</label><input type="text" class="form-control" value="INV-"></div>
+                <div class="col-md-6 mb-3"><label class="form-label">Quotation Number Prefix</label><input type="text" class="form-control" id="cfg_quotation_prefix" value=""></div>
+                <div class="col-md-6 mb-3"><label class="form-label">Invoice Number Prefix</label><input type="text" class="form-control" id="cfg_invoice_prefix" value=""></div>
               </div>
               <div class="row">
-                <div class="col-md-6 mb-3"><label class="form-label">Quotation Validity (days)</label><input type="number" class="form-control" value="15"></div>
-                <div class="col-md-6 mb-3"><label class="form-label">Default Payment Due (days)</label><input type="number" class="form-control" value="15"></div>
+                <div class="col-md-6 mb-3"><label class="form-label">Quotation Validity (days)</label><input type="number" class="form-control" id="cfg_quotation_validity_days" value=""></div>
+                <div class="col-md-6 mb-3"><label class="form-label">Default Payment Due (days)</label><input type="number" class="form-control" id="cfg_payment_due_days" value=""></div>
               </div>
-              <div class="mb-1"><label class="form-label">Default Terms & Conditions (printed on PDF)</label><textarea class="form-control" rows="4">1. Prices are exclusive of GST unless stated.
-2. 50% advance required to confirm booking.
-3. Cancellations within 7 days of go-live are non-refundable.</textarea></div>
+              <div class="mb-1"><label class="form-label">Default Terms & Conditions (printed on PDF)</label><textarea class="form-control" id="cfg_terms_conditions" rows="4"></textarea></div>
             </div>
           </div>
 
@@ -79,24 +78,36 @@
             <div class="card-header">Tax & Currency</div>
             <div class="card-body">
               <div class="row">
-                <div class="col-md-6 mb-3"><label class="form-label">Default GST Rate (%)</label><input type="number" class="form-control" value="18"></div>
+                <div class="col-md-6 mb-3"><label class="form-label">Default GST Rate (%)</label><input type="number" class="form-control" id="cfg_default_gst_rate" value=""></div>
                 <div class="col-md-6 mb-3"><label class="form-label">Currency</label>
-                  <select class="form-select"><option>INR (₹)</option><option>USD ($)</option></select>
+                  <select class="form-select" id="cfg_currency"><option value="INR">INR (₹)</option><option value="USD">USD ($)</option></select>
                 </div>
               </div>
-              <div class="mb-1"><label class="form-label">Bank Details (printed on invoice for payment)</label><textarea class="form-control" rows="3">A/c Name: Ad Screening Co. Pvt. Ltd.
-Bank: HDFC Bank, Hitec City Branch
-A/c No: 5020XXXXXXXX · IFSC: HDFC0001234</textarea></div>
+              <h6 class="mt-2" style="font-family:'Poppins',sans-serif;font-size:14px;color:var(--primary);">Bank Remittance Details</h6>
+              <div class="mb-3">
+                <label class="form-label">Bank Name</label>
+                <input type="text" class="form-control" id="cfg_bank_name" value="">
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Account Number</label>
+                  <input type="text" class="form-control" id="cfg_bank_account_number" value="">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">IFSC Code</label>
+                  <input type="text" class="form-control" id="cfg_bank_ifsc" value="">
+                </div>
+              </div>
             </div>
           </div>
 
           <div class="card settings-tab" id="tab-notif" style="display:none;">
             <div class="card-header">Notifications</div>
             <div class="card-body">
-              <div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox" checked><label class="form-check-label">Email me when a quotation is approved or rejected</label></div>
-              <div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox" checked><label class="form-check-label">Email me 3 days before an invoice is due</label></div>
-              <div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox"><label class="form-check-label">Daily summary of new customer enquiries</label></div>
-              <div class="form-check form-switch"><input class="form-check-input" type="checkbox" checked><label class="form-check-label">Screen booking conflict alerts</label></div>
+              <div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox" id="cfg_notif_quote_approved"><label class="form-check-label">Email me when a quotation is approved or rejected</label></div>
+              <div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox" id="cfg_notif_invoice_due"><label class="form-check-label">Email me 3 days before an invoice is due</label></div>
+              <div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox" id="cfg_notif_daily_summary"><label class="form-check-label">Daily summary of new customer enquiries</label></div>
+              <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="cfg_notif_booking_conflict"><label class="form-check-label">Screen booking conflict alerts</label></div>
             </div>
           </div>
 
@@ -206,7 +217,7 @@ A/c No: 5020XXXXXXXX · IFSC: HDFC0001234</textarea></div>
           </div>
 
           <div class="d-flex justify-content-end mt-3" id="settingsSaveRow">
-            <button class="btn btn-primary px-4"><i class="bi bi-check-lg"></i> Save Changes</button>
+            <button class="btn btn-primary px-4" onclick="saveSettings()"><i class="bi bi-check-lg"></i> Save Changes</button>
           </div>
         </div>
       </div>
@@ -242,7 +253,10 @@ A/c No: 5020XXXXXXXX · IFSC: HDFC0001234</textarea></div>
 <script src="assets/js/script.js"></script>
 <script>
   /* ─── Settings tabs ─── */
+  let activeTabKey = 'company';
+
   function showTab(key, btn) {
+    activeTabKey = key;
     document.querySelectorAll('.settings-tab').forEach(el => el.style.display = 'none');
     document.getElementById('tab-' + key).style.display = 'block';
     btn.parentElement.querySelectorAll('.nav-link').forEach(b => {
@@ -457,9 +471,138 @@ A/c No: 5020XXXXXXXX · IFSC: HDFC0001234</textarea></div>
 
   /* ─── Page init ─── */
   document.addEventListener('DOMContentLoaded', function () {
+    loadSettings();
     loadTemplateStatus('quotation');
     loadTemplateStatus('invoice');
   });
+
+  const settingsFields = {
+    company_name: 'cfg_company_name',
+    company_address: 'cfg_company_address',
+    company_phone: 'cfg_company_phone',
+    company_email: 'cfg_company_email',
+    company_gstin: 'cfg_company_gstin',
+    company_website: 'cfg_company_website',
+    bank_name: 'cfg_bank_name',
+    bank_account_number: 'cfg_bank_account_number',
+    bank_ifsc: 'cfg_bank_ifsc',
+
+    quotation_prefix: 'cfg_quotation_prefix',
+    invoice_prefix: 'cfg_invoice_prefix',
+    quotation_validity_days: 'cfg_quotation_validity_days',
+    payment_due_days: 'cfg_payment_due_days',
+    terms_conditions: 'cfg_terms_conditions',
+
+    default_gst_rate: 'cfg_default_gst_rate',
+    currency: 'cfg_currency',
+
+    notif_quote_approved: 'cfg_notif_quote_approved',
+    notif_invoice_due: 'cfg_notif_invoice_due',
+    notif_daily_summary: 'cfg_notif_daily_summary',
+    notif_booking_conflict: 'cfg_notif_booking_conflict',
+  };
+
+  async function loadSettings() {
+    try {
+      const res = await fetch('api/settings.php', { credentials: 'include' });
+      const json = await res.json();
+      if (json && json.success && json.data) {
+        const data = json.data;
+        for (const [group, groupSettings] of Object.entries(data)) {
+          for (const [key, value] of Object.entries(groupSettings)) {
+            const id = settingsFields[key];
+            if (!id) continue;
+            const el = document.getElementById(id);
+            if (!el) continue;
+
+            if (el.type === 'checkbox') {
+              el.checked = (value === '1');
+            } else {
+              el.value = value || '';
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load settings:', err);
+    }
+  }
+
+  async function saveSettings() {
+    const btn = document.querySelector('#settingsSaveRow button');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
+
+    const tabToGroup = {
+      company: 'company',
+      quote: 'quotation',
+      tax: 'tax',
+      notif: 'notifications'
+    };
+
+    const group = tabToGroup[activeTabKey];
+    if (!group) {
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+      return;
+    }
+
+    const payload = {
+      group: group,
+      settings: {}
+    };
+
+    const groupKeysMap = {
+      company: [
+        'company_name', 'company_address', 'company_phone', 'company_email', 
+        'company_gstin', 'company_website', 'bank_name', 'bank_account_number', 'bank_ifsc'
+      ],
+      quotation: [
+        'quotation_prefix', 'invoice_prefix', 'quotation_validity_days', 'payment_due_days', 'terms_conditions'
+      ],
+      tax: [
+        'default_gst_rate', 'currency'
+      ],
+      notifications: [
+        'notif_quote_approved', 'notif_invoice_due', 'notif_daily_summary', 'notif_booking_conflict'
+      ]
+    };
+
+    const keys = groupKeysMap[group] || [];
+    for (const key of keys) {
+      const id = settingsFields[key];
+      if (!id) continue;
+      const el = document.getElementById(id);
+      if (!el) continue;
+
+      if (el.type === 'checkbox') {
+        payload.settings[key] = el.checked ? '1' : '0';
+      } else {
+        payload.settings[key] = el.value.trim();
+      }
+    }
+
+    try {
+      const res = await fetch('api/settings.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        credentials: 'include'
+      });
+      const json = await res.json();
+      if (json && json.success) {
+        alert('Settings saved successfully.');
+      } else {
+        alert('Failed to save settings: ' + ((json && json.message) || 'Unknown error'));
+      }
+    } catch (err) {
+      alert('Network error while saving settings: ' + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    }
+  }
 
 </script>
 </body>

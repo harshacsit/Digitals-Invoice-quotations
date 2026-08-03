@@ -244,6 +244,10 @@
     const status = document.getElementById('filterStatus').value;
     const search = document.getElementById('quoteSearchInput').value.trim();
 
+    // Read current user role from sessionStorage for RBAC on dynamic content
+    const storedUser = JSON.parse(sessionStorage.getItem('adsdash_user') || '{}');
+    const isManagerOrOwner = ['manager', 'owner'].includes(storedUser.role);
+
     try {
       let params = new URLSearchParams({ limit: 100 });
       if (status) params.append('status', status);
@@ -286,14 +290,14 @@
               <button class="action-icon me-1" title="View Details" onclick="viewQuotationDetails(${q.id})"><i class="bi bi-eye"></i></button>
               <a href="api/quotation-pdf.php?id=${q.id}" target="_blank" class="action-icon me-1 text-primary" title="View PDF"><i class="bi bi-file-earmark-pdf"></i></a>
               <a href="api/quotation-pdf.php?id=${q.id}&download=1" class="action-icon me-1 text-dark" title="Download PDF"><i class="bi bi-download"></i></a>
-              <a href="api/quotation-pdf.php?id=${q.id}" target="_blank" class="action-icon me-1 text-secondary" title="Print PDF"><i class="bi bi-printer"></i></a>
+              <a href="api/quotation-pdf.php?id=${q.id}&print=1" target="_blank" class="action-icon me-1 text-secondary" title="Print PDF"><i class="bi bi-printer"></i></a>
               <button class="action-icon me-1 text-info" title="Send Email" onclick="openSendQuotationEmailModal(${q.id}, '${q.quotation_number}', '${q.customer ? (q.customer.email || '') : ''}', '${q.customer ? (q.customer.contact_person || q.customer.company_name || '') : ''}')"><i class="bi bi-envelope"></i></button>
-              ${q.status === 'pending_approval' ? `
-                <button class="action-icon text-success me-1 manager-only" title="Approve Quotation" onclick="approveQuotation(${q.id}, '${q.quotation_number}')"><i class="bi bi-check-lg"></i></button>
-                <button class="action-icon text-danger me-1 manager-only" title="Reject Quotation" onclick="rejectQuotation(${q.id}, '${q.quotation_number}')"><i class="bi bi-x-lg"></i></button>
+              ${q.status === 'pending_approval' && isManagerOrOwner ? `
+                <button class="action-icon text-success me-1" title="Approve Quotation" onclick="approveQuotation(${q.id}, '${q.quotation_number}')"><i class="bi bi-check-lg"></i></button>
+                <button class="action-icon text-danger me-1" title="Reject Quotation" onclick="rejectQuotation(${q.id}, '${q.quotation_number}')"><i class="bi bi-x-lg"></i></button>
               ` : ''}
-              ${q.status === 'approved' ? `
-                <button class="btn btn-sm btn-primary py-0 px-2 manager-only" title="Convert to Invoice" onclick="convertToInvoice(${q.id}, '${q.quotation_number}')"><i class="bi bi-receipt me-1"></i> Convert to Invoice</button>
+              ${q.status === 'approved' && isManagerOrOwner ? `
+                <button class="btn btn-sm btn-primary py-0 px-2" title="Convert to Invoice" onclick="convertToInvoice(${q.id}, '${q.quotation_number}')"><i class="bi bi-receipt me-1"></i> Convert to Invoice</button>
               ` : ''}
               ${(q.status === 'draft' || q.status === 'rejected') ? `
                 <button class="action-icon text-danger" title="Delete" onclick="deleteQuotation(${q.id}, '${q.quotation_number}')"><i class="bi bi-trash"></i></button>

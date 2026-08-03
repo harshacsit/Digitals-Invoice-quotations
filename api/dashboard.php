@@ -149,7 +149,7 @@ function getQuotationStats(PDO $pdo, ?string $fromDate, ?string $toDate): array
     $sql = "SELECT 
                 COUNT(*) AS total,
                 SUM(CASE WHEN status = 'draft' THEN 1 ELSE 0 END) AS draft,
-                SUM(CASE WHEN status = 'generated' THEN 1 ELSE 0 END) AS generated,
+                SUM(CASE WHEN status = 'generated' THEN 1 ELSE 0 END) AS generated_count,
                 SUM(CASE WHEN status = 'pending_approval' THEN 1 ELSE 0 END) AS pending_approval,
                 SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) AS approved,
                 SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) AS rejected,
@@ -165,7 +165,7 @@ function getQuotationStats(PDO $pdo, ?string $fromDate, ?string $toDate): array
     return [
         'total' => (int) ($row['total'] ?? 0),
         'draft' => (int) ($row['draft'] ?? 0),
-        'generated' => (int) ($row['generated'] ?? 0),
+        'generated' => (int) ($row['generated_count'] ?? 0),
         'pending_approval' => (int) ($row['pending_approval'] ?? 0),
         'approved' => (int) ($row['approved'] ?? 0),
         'rejected' => (int) ($row['rejected'] ?? 0),
