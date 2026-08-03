@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard · AdsDash</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="dashboard">
+
+<div class="app-shell">
+  <div id="sidebar-placeholder"></div>
+
+  <main class="main">
+    <div id="topbar-placeholder"></div>
+
+    <div class="page">
+      <div class="page-head">
+        <div>
+          <div class="crumb">AdsDash <span class="breadcrumb-sep">/</span> Overview</div>
+          <h1>Dashboard</h1>
+        </div>
+      </div>
+
+      <!--
+        BACKEND NOTE: On load, call e.g. GET api/dashboard.php which returns
+        { revenue_month, revenue_change_pct, quotations_pending, invoices_outstanding,
+          screens_booked, screens_total, chart_revenue:{labels,revenue[],quotations[]},
+          quotation_status:{pending,approved,rejected}, recent_quotations:[...],
+          payments_due:[...] } and populate the DOM below with it.
+      -->
+
+      <!-- Stat cards -->
+      <div class="row g-3 mb-3">
+        <div class="col-sm-6 col-xl-3">
+          <div class="stat-card">
+            <div class="stat-top">
+              <div class="icon-wrap"><i class="bi bi-currency-rupee"></i></div>
+              <div class="stat-delta up"><i class="bi bi-arrow-up-short"></i>12.4%</div>
+            </div>
+            <div class="stat-value">₹18,42,500</div>
+            <div class="stat-label">Revenue this month</div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+          <div class="stat-card c-blue">
+            <div class="stat-top">
+              <div class="icon-wrap"><i class="bi bi-file-earmark-text-fill"></i></div>
+              <div class="stat-delta up"><i class="bi bi-arrow-up-short"></i>8</div>
+            </div>
+            <div class="stat-value">27</div>
+            <div class="stat-label">Quotations pending approval</div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+          <div class="stat-card c-green">
+            <div class="stat-top">
+              <div class="icon-wrap"><i class="bi bi-receipt"></i></div>
+              <div class="stat-delta down"><i class="bi bi-arrow-down-short"></i>3.1%</div>
+            </div>
+            <div class="stat-value">₹4,86,200</div>
+            <div class="stat-label">Outstanding invoices</div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+          <div class="stat-card c-purple">
+            <div class="stat-top">
+              <div class="icon-wrap"><i class="bi bi-display"></i></div>
+              <div class="stat-delta up"><i class="bi bi-arrow-up-short"></i>5</div>
+            </div>
+            <div class="stat-value">64 / 78</div>
+            <div class="stat-label">Screens currently booked</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-3">
+        <div class="col-lg-8">
+          <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <span>Revenue vs Quotations (last 6 months)</span>
+              <select class="form-select form-select-sm" style="width:auto;">
+                <option>2026</option>
+                <option>2025</option>
+              </select>
+            </div>
+            <div class="card-body"><canvas id="revenueChart" height="110"></canvas></div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="card h-100">
+            <div class="card-header">Quotation Status</div>
+            <div class="card-body d-flex flex-column align-items-center">
+              <canvas id="funnelChart" height="180"></canvas>
+              <div class="w-100 mt-3">
+                <div class="d-flex justify-content-between small mb-1"><span><i class="bi bi-circle-fill me-1" style="font-size:8px;color:#F2A93B;"></i>Pending</span><span>27</span></div>
+                <div class="d-flex justify-content-between small mb-1"><span><i class="bi bi-circle-fill me-1" style="font-size:8px;color:#22C55E;"></i>Approved</span><span>142</span></div>
+                <div class="d-flex justify-content-between small"><span><i class="bi bi-circle-fill me-1" style="font-size:8px;color:#EF4444;"></i>Rejected</span><span>19</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-lg-7">
+          <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <span>Recent Quotations</span>
+              <a href="quotations.html" class="text-decoration-none small">View all <i class="bi bi-arrow-right"></i></a>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-modern mb-0">
+                <thead><tr><th>Quote #</th><th>Customer</th><th>Service</th><th>Amount</th><th>Status</th></tr></thead>
+                <tbody id="recentQuotationsBody">
+                  <tr>
+                    <td><a href="quotations.html" class="text-decoration-none fw-semibold">QT-1042</a></td>
+                    <td class="d-flex align-items-center gap-2"><div class="row-avatar">NM</div>Nova Motors</td>
+                    <td>Billboard</td><td>₹1,25,000</td>
+                    <td><span class="badge-status st-pending">Pending</span></td>
+                  </tr>
+                  <tr>
+                    <td><a href="quotations.html" class="text-decoration-none fw-semibold">QT-1041</a></td>
+                    <td class="d-flex align-items-center gap-2"><div class="row-avatar">SR</div>Sunrise Retail</td>
+                    <td>TV Display</td><td>₹68,500</td>
+                    <td><span class="badge-status st-approved">Approved</span></td>
+                  </tr>
+                  <tr>
+                    <td><a href="quotations.html" class="text-decoration-none fw-semibold">QT-1040</a></td>
+                    <td class="d-flex align-items-center gap-2"><div class="row-avatar">PF</div>Prime Foods</td>
+                    <td>Billboard</td><td>₹2,10,000</td>
+                    <td><span class="badge-status st-rejected">Rejected</span></td>
+                  </tr>
+                  <tr>
+                    <td><a href="quotations.html" class="text-decoration-none fw-semibold">QT-1039</a></td>
+                    <td class="d-flex align-items-center gap-2"><div class="row-avatar">UT</div>Urban Tech</td>
+                    <td>TV Display</td><td>₹95,000</td>
+                    <td><span class="badge-status st-approved">Approved</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-5">
+          <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <span>Payments Due Soon</span>
+              <a href="payments.html" class="text-decoration-none small">View all <i class="bi bi-arrow-right"></i></a>
+            </div>
+            <div class="card-body pt-2" id="paymentsDueList">
+              <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <div><div class="fw-semibold" style="font-size:13.5px;">Sunrise Retail</div><div class="text-muted" style="font-size:12px;">INV-2211 · Due 04 Aug 2026</div></div>
+                <div class="fw-semibold">₹34,250</div>
+              </div>
+              <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <div><div class="fw-semibold" style="font-size:13.5px;">Urban Tech</div><div class="text-muted" style="font-size:12px;">INV-2208 · Due 06 Aug 2026</div></div>
+                <div class="fw-semibold">₹95,000</div>
+              </div>
+              <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <div><div class="fw-semibold" style="font-size:13.5px;">Nova Motors</div><div class="text-muted" style="font-size:12px;">INV-2202 · Overdue since 29 Jul</div></div>
+                <div class="fw-semibold text-danger">₹1,25,000</div>
+              </div>
+              <div class="d-flex justify-content-between align-items-center py-2">
+                <div><div class="fw-semibold" style="font-size:13.5px;">Prime Foods</div><div class="text-muted" style="font-size:12px;">INV-2195 · Due 12 Aug 2026</div></div>
+                <div class="fw-semibold">₹58,000</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="assets/js/layout.js"></script>
+<script src="assets/js/script.js"></script>
+<script>
+  new Chart(document.getElementById('revenueChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Mar','Apr','May','Jun','Jul','Aug'],
+      datasets: [
+        { label: 'Revenue (₹k)', data: [120,145,132,168,155,184], backgroundColor:'#12172B', borderRadius:6, barPercentage:.55 },
+        { label: 'Quotations sent', data: [22,28,24,31,27,33], type:'line', borderColor:'#F2A93B', backgroundColor:'#F2A93B', yAxisID:'y1', tension:.35 }
+      ]
+    },
+    options: {
+      responsive:true,
+      scales: { y:{ grid:{color:'#F0F1F6'} }, y1:{ position:'right', grid:{display:false} } },
+      plugins:{ legend:{ position:'bottom', labels:{boxWidth:10, font:{size:11}} } }
+    }
+  });
+
+  new Chart(document.getElementById('funnelChart'), {
+    type: 'doughnut',
+    data: { labels: ['Pending','Approved','Rejected'], datasets: [{ data:[27,142,19], backgroundColor:['#F2A93B','#22C55E','#EF4444'], borderWidth:0 }] },
+    options: { plugins:{ legend:{ display:false } }, cutout:'70%' }
+  });
+
+  /* BACKEND HOOK — replace the static markup above with real data:
+  fetch('api/dashboard.php').then(r => r.json()).then(data => { ... populate DOM ... });
+  */
+</script>
+</body>
+</html>

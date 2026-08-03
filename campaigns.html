@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campaigns · AdsDash</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="campaigns">
+
+<div class="app-shell">
+  <div id="sidebar-placeholder"></div>
+
+  <main class="main">
+    <div id="topbar-placeholder"></div>
+
+    <div class="page">
+      <div class="page-head">
+        <div>
+          <div class="crumb">AdsDash <span class="breadcrumb-sep">/</span> Campaigns</div>
+          <h1>Campaigns</h1>
+        </div>
+        <button class="btn btn-amber" data-bs-toggle="modal" data-bs-target="#campaignModal"><i class="bi bi-plus-lg"></i> New Campaign</button>
+      </div>
+
+      <div class="row g-3 mb-3">
+        <div class="col-sm-4"><div class="stat-card c-green"><div class="stat-value">38</div><div class="stat-label">Running now</div></div></div>
+        <div class="col-sm-4"><div class="stat-card c-blue"><div class="stat-value">9</div><div class="stat-label">Scheduled</div></div></div>
+        <div class="col-sm-4"><div class="stat-card"><div class="stat-value">14</div><div class="stat-label">Ending this week</div></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Active & Upcoming Campaigns</div>
+        <div class="card-body">
+          <!-- BACKEND NOTE: GET api/campaigns.php → [{id,name,customer,type,screens_count,start,end,status,progress}] -->
+          <table class="table table-modern datatable">
+            <thead><tr><th>Campaign</th><th>Customer</th><th>Type</th><th>Screens</th><th>Duration</th><th>Progress</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="fw-semibold">Showroom Launch — July</td>
+                <td>Nova Motors</td>
+                <td><span class="chip"><i class="bi bi-display"></i> TV Display</span></td>
+                <td>3 screens</td>
+                <td>02 Jun – 02 Sep 2026</td>
+                <td style="width:140px;">
+                  <div class="progress" style="height:6px;"><div class="progress-bar" style="width:62%;background:var(--amber);"></div></div>
+                  <div class="text-muted" style="font-size:11px;">62% elapsed</div>
+                </td>
+                <td><span class="badge-status st-active">Running</span></td>
+              </tr>
+              <tr>
+                <td class="fw-semibold">IT Corridor Push</td>
+                <td>Sunrise Retail</td>
+                <td><span class="chip"><i class="bi bi-signpost-2-fill"></i> Billboard</span></td>
+                <td>2 screens</td>
+                <td>10 Jul – 10 Oct 2026</td>
+                <td style="width:140px;">
+                  <div class="progress" style="height:6px;"><div class="progress-bar" style="width:23%;background:var(--amber);"></div></div>
+                  <div class="text-muted" style="font-size:11px;">23% elapsed</div>
+                </td>
+                <td><span class="badge-status st-active">Running</span></td>
+              </tr>
+              <tr>
+                <td class="fw-semibold">Festive Season Promo</td>
+                <td>Prime Foods</td>
+                <td><span class="chip"><i class="bi bi-signpost-2-fill"></i> Billboard</span></td>
+                <td>4 screens</td>
+                <td>15 Aug – 15 Nov 2026</td>
+                <td style="width:140px;">
+                  <div class="progress" style="height:6px;"><div class="progress-bar" style="width:0%;background:var(--blue);"></div></div>
+                  <div class="text-muted" style="font-size:11px;">Starts in 14 days</div>
+                </td>
+                <td><span class="badge-status st-draft">Scheduled</span></td>
+              </tr>
+              <tr>
+                <td class="fw-semibold">Q1 Brand Awareness</td>
+                <td>Urban Tech</td>
+                <td><span class="chip"><i class="bi bi-display"></i> TV Display</span></td>
+                <td>1 screen</td>
+                <td>01 Jan – 31 Mar 2026</td>
+                <td style="width:140px;">
+                  <div class="progress" style="height:6px;"><div class="progress-bar" style="width:100%;background:var(--green);"></div></div>
+                  <div class="text-muted" style="font-size:11px;">Completed</div>
+                </td>
+                <td><span class="badge-status st-inactive">Completed</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal fade" id="campaignModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">New Campaign</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <!-- BACKEND NOTE: POST api/campaigns.php — normally auto-created from an approved quotation, this form covers manual creation -->
+      <form>
+        <div class="modal-body">
+          <div class="mb-3"><label class="form-label">Campaign Name *</label><input type="text" class="form-control" placeholder="e.g. Diwali Sale 2026"></div>
+          <div class="mb-3"><label class="form-label">Customer *</label>
+            <select class="form-select"><option>Nova Motors</option><option>Sunrise Retail</option><option>Prime Foods</option><option>Urban Tech</option></select>
+          </div>
+          <div class="mb-3"><label class="form-label">Linked Quotation</label>
+            <select class="form-select"><option>QT-1042 — Nova Motors</option><option>None (manual)</option></select>
+          </div>
+          <div class="row">
+            <div class="col-6 mb-3"><label class="form-label">Start Date</label><input type="date" class="form-control"></div>
+            <div class="col-6 mb-3"><label class="form-label">End Date</label><input type="date" class="form-control"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-soft" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Campaign</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+<script src="assets/js/layout.js"></script>
+<script src="assets/js/script.js"></script>
+</body>
+</html>
