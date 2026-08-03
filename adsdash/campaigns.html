@@ -8,7 +8,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body data-page="campaigns">
@@ -25,100 +24,100 @@
           <div class="crumb">Bhimavaram Digitals <span class="breadcrumb-sep">/</span> Campaigns</div>
           <h1>Campaigns</h1>
         </div>
-        <button class="btn btn-amber" data-bs-toggle="modal" data-bs-target="#campaignModal"><i class="bi bi-plus-lg"></i> New Campaign</button>
+        <button class="btn btn-amber" data-bs-toggle="modal" data-bs-target="#campaignModal" onclick="openNewCampaign()"><i class="bi bi-plus-lg"></i> New Campaign</button>
       </div>
 
       <div class="row g-3 mb-3">
-        <div class="col-sm-4"><div class="stat-card c-green"><div class="stat-value">38</div><div class="stat-label">Running now</div></div></div>
-        <div class="col-sm-4"><div class="stat-card c-blue"><div class="stat-value">9</div><div class="stat-label">Scheduled</div></div></div>
-        <div class="col-sm-4"><div class="stat-card"><div class="stat-value">14</div><div class="stat-label">Ending this week</div></div></div>
+        <div class="col-sm-4"><div class="stat-card c-green"><div class="stat-value" id="statActiveCampaigns">0</div><div class="stat-label">Running now</div></div></div>
+        <div class="col-sm-4"><div class="stat-card c-blue"><div class="stat-value" id="statPlannedCampaigns">0</div><div class="stat-label">Scheduled / Planned</div></div></div>
+        <div class="col-sm-4"><div class="stat-card"><div class="stat-value" id="statCompletedCampaigns">0</div><div class="stat-label">Completed</div></div></div>
       </div>
 
       <div class="card">
-        <div class="card-header">Active & Upcoming Campaigns</div>
-        <div class="card-body">
-          <!-- BACKEND NOTE: GET api/campaigns.php → [{id,name,customer,type,screens_count,start,end,status,progress}] -->
-          <table class="table table-modern datatable">
-            <thead><tr><th>Campaign</th><th>Customer</th><th>Type</th><th>Screens</th><th>Duration</th><th>Progress</th><th>Status</th></tr></thead>
-            <tbody>
-              <tr>
-                <td class="fw-semibold">Showroom Launch — July</td>
-                <td>Nova Motors</td>
-                <td><span class="chip"><i class="bi bi-display"></i> TV Display</span></td>
-                <td>3 screens</td>
-                <td>02 Jun – 02 Sep 2026</td>
-                <td style="width:140px;">
-                  <div class="progress" style="height:6px;"><div class="progress-bar" style="width:62%;background:var(--amber);"></div></div>
-                  <div class="text-muted" style="font-size:11px;">62% elapsed</div>
-                </td>
-                <td><span class="badge-status st-active">Running</span></td>
-              </tr>
-              <tr>
-                <td class="fw-semibold">IT Corridor Push</td>
-                <td>Sunrise Retail</td>
-                <td><span class="chip"><i class="bi bi-signpost-2-fill"></i> Billboard</span></td>
-                <td>2 screens</td>
-                <td>10 Jul – 10 Oct 2026</td>
-                <td style="width:140px;">
-                  <div class="progress" style="height:6px;"><div class="progress-bar" style="width:23%;background:var(--amber);"></div></div>
-                  <div class="text-muted" style="font-size:11px;">23% elapsed</div>
-                </td>
-                <td><span class="badge-status st-active">Running</span></td>
-              </tr>
-              <tr>
-                <td class="fw-semibold">Festive Season Promo</td>
-                <td>Prime Foods</td>
-                <td><span class="chip"><i class="bi bi-signpost-2-fill"></i> Billboard</span></td>
-                <td>4 screens</td>
-                <td>15 Aug – 15 Nov 2026</td>
-                <td style="width:140px;">
-                  <div class="progress" style="height:6px;"><div class="progress-bar" style="width:0%;background:var(--blue);"></div></div>
-                  <div class="text-muted" style="font-size:11px;">Starts in 14 days</div>
-                </td>
-                <td><span class="badge-status st-draft">Scheduled</span></td>
-              </tr>
-              <tr>
-                <td class="fw-semibold">Q1 Brand Awareness</td>
-                <td>Urban Tech</td>
-                <td><span class="chip"><i class="bi bi-display"></i> TV Display</span></td>
-                <td>1 screen</td>
-                <td>01 Jan – 31 Mar 2026</td>
-                <td style="width:140px;">
-                  <div class="progress" style="height:6px;"><div class="progress-bar" style="width:100%;background:var(--green);"></div></div>
-                  <div class="text-muted" style="font-size:11px;">Completed</div>
-                </td>
-                <td><span class="badge-status st-inactive">Completed</span></td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span>Active & Upcoming Campaigns</span>
+          <div class="d-flex gap-2 align-items-center">
+            <select class="form-select form-select-sm" id="filterStatus" style="width:auto;" onchange="loadCampaigns()">
+              <option value="">All statuses</option>
+              <option value="planned">Planned</option>
+              <option value="active">Active</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+            <div class="input-group input-group-sm" style="width:200px;">
+              <input type="text" class="form-control" placeholder="Search campaign..." id="campSearchInput" onkeyup="if(event.key==='Enter') loadCampaigns()">
+              <button class="btn btn-outline-secondary" type="button" onclick="loadCampaigns()"><i class="bi bi-search"></i></button>
+            </div>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-modern mb-0">
+              <thead><tr><th>Campaign #</th><th>Campaign Name</th><th>Customer</th><th>Type</th><th>Dates</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+              <tbody id="campaignTableBody">
+                <tr><td colspan="7" class="text-center py-4 text-muted">Loading campaigns...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
   </main>
 </div>
 
+<!-- New Campaign Modal -->
 <div class="modal fade" id="campaignModal" tabindex="-1">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header"><h5 class="modal-title">New Campaign</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
-      <!-- BACKEND NOTE: POST api/campaigns.php — normally auto-created from an approved quotation, this form covers manual creation -->
-      <form>
+      <form id="campaignForm">
         <div class="modal-body">
-          <div class="mb-3"><label class="form-label">Campaign Name *</label><input type="text" class="form-control" placeholder="e.g. Diwali Sale 2026"></div>
-          <div class="mb-3"><label class="form-label">Customer *</label>
-            <select class="form-select"><option>Nova Motors</option><option>Sunrise Retail</option><option>Prime Foods</option><option>Urban Tech</option></select>
-          </div>
-          <div class="mb-3"><label class="form-label">Linked Quotation</label>
-            <select class="form-select"><option>QT-1042 — Nova Motors</option><option>None (manual)</option></select>
+          <div class="mb-3">
+            <label class="form-label">Campaign Name *</label>
+            <input type="text" class="form-control" id="cmp_name" placeholder="e.g. Diwali Sale 2026" required>
           </div>
           <div class="row">
-            <div class="col-6 mb-3"><label class="form-label">Start Date</label><input type="date" class="form-control"></div>
-            <div class="col-6 mb-3"><label class="form-label">End Date</label><input type="date" class="form-control"></div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Customer *</label>
+              <select class="form-select" id="cmp_customer_id" required>
+                <option value="">Loading customers...</option>
+              </select>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Campaign Type *</label>
+              <select class="form-select" id="cmp_type" required>
+                <option value="tv_display">TV Display</option>
+                <option value="billboard">Billboard</option>
+                <option value="digital_board">Digital Board</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
           </div>
+          <div class="row">
+            <div class="col-6 mb-3">
+              <label class="form-label">Start Date *</label>
+              <input type="date" class="form-control" id="cmp_start_date" required>
+            </div>
+            <div class="col-6 mb-3">
+              <label class="form-label">End Date *</label>
+              <input type="date" class="form-control" id="cmp_end_date" required>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Select Screens *</label>
+            <div class="row g-2" id="cmpScreensContainer" style="max-height:180px;overflow-y:auto;border:1px solid #E2E8F0;padding:10px;border-radius:6px;">
+              <div class="text-muted">Loading available screens...</div>
+            </div>
+          </div>
+          <div class="mb-1">
+            <label class="form-label">Notes / Objectives</label>
+            <textarea class="form-control" id="cmp_notes" rows="2" placeholder="Campaign goals..."></textarea>
+          </div>
+          <div class="alert alert-danger py-2 mt-3" style="display:none;font-size:12.5px;" id="cmp_error"></div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline-soft" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Create Campaign</button>
+          <button type="submit" class="btn btn-primary" id="cmp_submit_btn">Create Campaign</button>
         </div>
       </form>
     </div>
@@ -126,10 +125,299 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+<script src="assets/js/api.js"></script>
 <script src="assets/js/layout.js"></script>
 <script src="assets/js/script.js"></script>
+<script>
+  let campaignsList = [];
+  let availableScreensList = [];
+
+  async function loadCampaigns() {
+    const tbody = document.getElementById('campaignTableBody');
+    const status = document.getElementById('filterStatus').value;
+    const search = document.getElementById('campSearchInput').value.trim();
+
+    try {
+      let params = new URLSearchParams({ limit: 100 });
+      if (status) params.append('status', status);
+      if (search) params.append('search', search);
+
+      const res = await window.api.get(`/campaigns.php?${params.toString()}`);
+      if (!res || !res.success) return;
+
+      campaignsList = res.data || [];
+
+      // Stat totals
+      document.getElementById('statActiveCampaigns').textContent = campaignsList.filter(c => c.status === 'active').length;
+      document.getElementById('statPlannedCampaigns').textContent = campaignsList.filter(c => c.status === 'planned').length;
+      document.getElementById('statCompletedCampaigns').textContent = campaignsList.filter(c => c.status === 'completed').length;
+
+      if (campaignsList.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">No campaigns found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = campaignsList.map(c => {
+        let badgeClass = 'st-pending';
+        if (c.status === 'active') badgeClass = 'st-active';
+        if (c.status === 'completed') badgeClass = 'st-paid';
+        if (c.status === 'cancelled') badgeClass = 'st-rejected';
+
+        const initials = (c.customer ? c.customer.company_name : 'CU').split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+
+        return `
+          <tr>
+            <td class="fw-semibold">${c.campaign_number}</td>
+            <td class="fw-semibold text-primary">${c.campaign_name}</td>
+            <td class="d-flex align-items-center gap-2">
+              <div class="row-avatar">${initials}</div>
+              <div>${c.customer ? c.customer.company_name : 'N/A'}</div>
+            </td>
+            <td><span class="chip"><i class="bi bi-display me-1"></i> ${c.campaign_type}</span></td>
+            <td>${c.start_date} → ${c.end_date}</td>
+            <td><span class="badge-status ${badgeClass}">${c.status}</span></td>
+            <td class="text-end">
+              <button class="action-icon text-info me-1" title="Send Update Email" onclick="openSendCampaignEmailModal(${c.id}, '${c.campaign_number}', '${c.customer ? (c.customer.email || '') : ''}', '${c.customer ? (c.customer.contact_person || c.customer.company_name || '') : ''}')"><i class="bi bi-envelope"></i></button>
+              ${c.status === 'planned' ? `
+                <button class="btn btn-sm btn-outline-success py-0 px-2 me-1" title="Activate" onclick="updateCampaignStatus(${c.id}, 'activate')"><i class="bi bi-play-fill"></i> Activate</button>
+              ` : ''}
+              ${c.status === 'active' ? `
+                <button class="btn btn-sm btn-outline-primary py-0 px-2 me-1" title="Complete" onclick="updateCampaignStatus(${c.id}, 'complete')"><i class="bi bi-check-circle-fill"></i> Complete</button>
+              ` : ''}
+              ${(c.status !== 'completed' && c.status !== 'cancelled') ? `
+                <button class="btn btn-sm btn-outline-danger py-0 px-2 me-1" title="Cancel" onclick="updateCampaignStatus(${c.id}, 'cancel')"><i class="bi bi-x-circle"></i> Cancel</button>
+              ` : ''}
+              ${(c.status === 'planned' || c.status === 'cancelled') ? `
+                <button class="action-icon text-danger" title="Delete" onclick="deleteCampaign(${c.id}, '${c.campaign_name.replace(/'/g, "\\'")}')"><i class="bi bi-trash"></i></button>
+              ` : ''}
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+    } catch (err) {
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-danger">Failed to load campaigns: ${err.message}</td></tr>`;
+    }
+  }
+
+  async function openNewCampaign() {
+    document.getElementById('campaignForm').reset();
+    document.getElementById('cmp_error').style.display = 'none';
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    document.getElementById('cmp_start_date').value = todayStr;
+
+    // Load customers dropdown
+    try {
+      const cRes = await window.api.get('/customers.php?limit=100');
+      if (cRes && cRes.success) {
+        const custSelect = document.getElementById('cmp_customer_id');
+        custSelect.innerHTML = '<option value="">Select customer...</option>' +
+          (cRes.data || []).map(c => `<option value="${c.id}">${c.company_name} (${c.contact_person})</option>`).join('');
+      }
+
+      const sRes = await window.api.get('/screens.php?limit=100');
+      if (sRes && sRes.success) {
+        availableScreensList = sRes.data || [];
+        const scrBox = document.getElementById('cmpScreensContainer');
+        if (availableScreensList.length === 0) {
+          scrBox.innerHTML = '<div class="col-12 text-muted">No screens available in inventory.</div>';
+        } else {
+          scrBox.innerHTML = availableScreensList.map(s => `
+            <div class="col-md-6">
+              <div class="form-check">
+                <input class="form-check-input cmp-screen-checkbox" type="checkbox" value="${s.id}" id="cmp_scr_${s.id}">
+                <label class="form-check-label text-truncate" for="cmp_scr_${s.id}" style="font-size:13px;">
+                  <strong>${s.name}</strong> (${s.city})
+                </label>
+              </div>
+            </div>
+          `).join('');
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load campaign form dependencies:', err);
+    }
+  }
+
+  async function updateCampaignStatus(id, action) {
+    if (!confirmAction(`Are you sure you want to ${action} this campaign?`)) return;
+    try {
+      const res = await window.api.post(`/campaigns.php?id=${id}&action=${action}`);
+      if (res && res.success) {
+        loadCampaigns();
+      }
+    } catch (err) {
+      alert(`Action failed: ${err.message}`);
+    }
+  }
+
+  async function deleteCampaign(id, name) {
+    if (!confirmAction(`Delete campaign "${name}"?`)) return;
+    try {
+      const res = await window.api.delete(`/campaigns.php?id=${id}`);
+      if (res && res.success) {
+        loadCampaigns();
+      }
+    } catch (err) {
+      alert(`Delete failed: ${err.message}`);
+    }
+  }
+
+  document.getElementById('campaignForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const errEl = document.getElementById('cmp_error');
+    const submitBtn = document.getElementById('cmp_submit_btn');
+
+    errEl.style.display = 'none';
+
+    const selectedBoxes = document.querySelectorAll('.cmp-screen-checkbox:checked');
+    const selectedScreenIds = Array.from(selectedBoxes).map(b => parseInt(b.value));
+
+    if (selectedScreenIds.length === 0) {
+      errEl.textContent = 'Please select at least one screen.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    const payload = {
+      campaign_name: document.getElementById('cmp_name').value.trim(),
+      customer_id: parseInt(document.getElementById('cmp_customer_id').value),
+      campaign_type: document.getElementById('cmp_type').value,
+      start_date: document.getElementById('cmp_start_date').value,
+      end_date: document.getElementById('cmp_end_date').value,
+      screen_ids: selectedScreenIds,
+      notes: document.getElementById('cmp_notes').value.trim() || null
+    };
+
+    submitBtn.disabled = true;
+
+    try {
+      const res = await window.api.post('/campaigns.php', payload);
+      if (res && res.success) {
+        const modalEl = document.getElementById('campaignModal');
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        if (modalInstance) modalInstance.hide();
+        loadCampaigns();
+      } else {
+        errEl.textContent = (res && res.message) ? res.message : 'Create campaign failed.';
+        errEl.style.display = 'block';
+      }
+    } catch (err) {
+      errEl.textContent = err.message || 'Error creating campaign.';
+      errEl.style.display = 'block';
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', loadCampaigns);
+</script>
+
+<!-- SEND CAMPAIGN EMAIL MODAL -->
+<div class="modal fade" id="sendCampaignEmailModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="sendCampaignEmailModalTitle"><i class="bi bi-envelope me-2"></i>Send Campaign Update</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="email_cmp_id">
+        <div class="alert alert-info py-2 small mb-3">
+          <i class="bi bi-info-circle me-1"></i> Campaign progress & schedule update will be sent to the recipient.
+        </div>
+        <div class="mb-3">
+          <label class="form-label text-muted small fw-semibold">Recipient Email *</label>
+          <input type="email" id="email_cmp_recipient_email" class="form-control" placeholder="customer@example.com" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label text-muted small fw-semibold">Recipient Name</label>
+          <input type="text" id="email_cmp_recipient_name" class="form-control" placeholder="Contact Person Name">
+        </div>
+        <div id="emailCmpAlert" class="d-none alert py-2 small"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-soft" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" id="btnSendCmpSubmit" class="btn btn-primary" onclick="submitSendCampaignEmail()">
+          <span id="btnSendCmpSpinner" class="spinner-border spinner-border-sm me-1 d-none"></span>
+          <i class="bi bi-send me-1" id="btnSendCmpIcon"></i> <span id="btnSendCmpText">Send Update</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openSendCampaignEmailModal(id, cmpNum, email, name) {
+    document.getElementById('email_cmp_id').value = id;
+    document.getElementById('sendCampaignEmailModalTitle').innerHTML = `<i class="bi bi-envelope me-2"></i>Send Update — ${cmpNum}`;
+    document.getElementById('email_cmp_recipient_email').value = email || '';
+    document.getElementById('email_cmp_recipient_name').value = name || '';
+
+    const alertEl = document.getElementById('emailCmpAlert');
+    alertEl.className = 'd-none alert py-2 small';
+    alertEl.textContent = '';
+
+    const submitBtn = document.getElementById('btnSendCmpSubmit');
+    submitBtn.disabled = false;
+    document.getElementById('btnSendCmpSpinner').classList.add('d-none');
+    document.getElementById('btnSendCmpIcon').classList.remove('d-none');
+    document.getElementById('btnSendCmpText').textContent = 'Send Update';
+
+    new bootstrap.Modal(document.getElementById('sendCampaignEmailModal')).show();
+  }
+
+  async function submitSendCampaignEmail() {
+    const id = parseInt(document.getElementById('email_cmp_id').value, 10);
+    const email = document.getElementById('email_cmp_recipient_email').value.trim();
+    const name = document.getElementById('email_cmp_recipient_name').value.trim();
+
+    const alertEl = document.getElementById('emailCmpAlert');
+    alertEl.className = 'd-none alert py-2 small';
+
+    if (!email) {
+      alertEl.className = 'alert alert-danger py-2 small mb-3';
+      alertEl.textContent = 'Customer email address is not available. Please enter a recipient email.';
+      return;
+    }
+
+    const submitBtn = document.getElementById('btnSendCmpSubmit');
+    const spinner = document.getElementById('btnSendCmpSpinner');
+    const icon = document.getElementById('btnSendCmpIcon');
+    const btnText = document.getElementById('btnSendCmpText');
+
+    submitBtn.disabled = true;
+    spinner.classList.remove('d-none');
+    icon.classList.add('d-none');
+    btnText.textContent = 'Sending...';
+
+    try {
+      const res = await window.api.sendCampaignEmail(id, email, name);
+      if (res && res.success) {
+        alertEl.className = 'alert alert-success py-2 small mb-3';
+        alertEl.textContent = 'Campaign update email sent successfully.';
+        setTimeout(() => {
+          const modalInst = bootstrap.Modal.getInstance(document.getElementById('sendCampaignEmailModal'));
+          if (modalInst) modalInst.hide();
+        }, 1500);
+      } else {
+        alertEl.className = 'alert alert-danger py-2 small mb-3';
+        alertEl.textContent = (res && res.message) ? res.message : 'Unable to send email.';
+        submitBtn.disabled = false;
+        spinner.classList.add('d-none');
+        icon.classList.remove('d-none');
+        btnText.textContent = 'Send Update';
+      }
+    } catch (err) {
+      alertEl.className = 'alert alert-danger py-2 small mb-3';
+      alertEl.textContent = err.message || 'Unable to send email.';
+      submitBtn.disabled = false;
+      spinner.classList.add('d-none');
+      icon.classList.remove('d-none');
+      btnText.textContent = 'Send Update';
+    }
+  }
+</script>
 </body>
 </html>

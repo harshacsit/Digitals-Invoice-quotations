@@ -8,7 +8,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body data-page="payments">
@@ -25,97 +24,406 @@
           <div class="crumb">Bhimavaram Digitals <span class="breadcrumb-sep">/</span> Payments</div>
           <h1>Payments</h1>
         </div>
-        <button class="btn btn-amber" data-bs-toggle="modal" data-bs-target="#paymentModal"><i class="bi bi-plus-lg"></i> Record Payment</button>
+        <button class="btn btn-amber" data-bs-toggle="modal" data-bs-target="#paymentModal" onclick="openNewPayment()"><i class="bi bi-plus-lg"></i> Record Payment</button>
       </div>
 
       <div class="row g-3 mb-3">
-        <div class="col-sm-4"><div class="stat-card c-green"><div class="stat-value">₹42.6L</div><div class="stat-label">Total collected (YTD)</div></div></div>
-        <div class="col-sm-4"><div class="stat-card"><div class="stat-value">₹4,86,200</div><div class="stat-label">Outstanding</div></div></div>
-        <div class="col-sm-4"><div class="stat-card c-red"><div class="stat-value">₹1,25,000</div><div class="stat-label">Overdue</div></div></div>
+        <div class="col-sm-4"><div class="stat-card c-green"><div class="stat-value" id="statTotalPayments">₹0.00</div><div class="stat-label">Total collected</div></div></div>
+        <div class="col-sm-4"><div class="stat-card"><div class="stat-value" id="statTodayPayments">₹0.00</div><div class="stat-label">Today's collection</div></div></div>
+        <div class="col-sm-4"><div class="stat-card c-blue"><div class="stat-value" id="statThisMonthPayments">₹0.00</div><div class="stat-label">This month collection</div></div></div>
       </div>
 
       <div class="card">
-        <div class="card-header">Payment History</div>
-        <div class="card-body">
-          <!-- BACKEND NOTE: GET api/payments.php → [{id,invoice_ref,customer,amount,method,date,recorded_by}] -->
-          <table class="table table-modern datatable">
-            <thead><tr><th>Payment #</th><th>Invoice</th><th>Customer</th><th>Amount</th><th>Method</th><th>Date</th><th>Recorded By</th></tr></thead>
-            <tbody>
-              <tr>
-                <td class="fw-semibold">PMT-3312</td><td>INV-2211</td>
-                <td class="d-flex align-items-center gap-2"><div class="row-avatar">SR</div>Sunrise Retail</td>
-                <td>₹34,250</td>
-                <td><span class="chip"><i class="bi bi-bank"></i> Bank Transfer</span></td>
-                <td>29 Jul 2026</td><td>Ravi Kumar</td>
-              </tr>
-              <tr>
-                <td class="fw-semibold">PMT-3301</td><td>INV-2044</td>
-                <td class="d-flex align-items-center gap-2"><div class="row-avatar">NM</div>Nova Motors</td>
-                <td>₹1,80,000</td>
-                <td><span class="chip"><i class="bi bi-bank"></i> Bank Transfer</span></td>
-                <td>20 Mar 2026</td><td>Ravi Kumar</td>
-              </tr>
-              <tr>
-                <td class="fw-semibold">PMT-3287</td><td>INV-1980</td>
-                <td class="d-flex align-items-center gap-2"><div class="row-avatar">PF</div>Prime Foods</td>
-                <td>₹58,000</td>
-                <td><span class="chip"><i class="bi bi-credit-card"></i> UPI</span></td>
-                <td>11 Feb 2026</td><td>Anjali Singh</td>
-              </tr>
-              <tr>
-                <td class="fw-semibold">PMT-3255</td><td>INV-1940</td>
-                <td class="d-flex align-items-center gap-2"><div class="row-avatar">UT</div>Urban Tech</td>
-                <td>₹95,000</td>
-                <td><span class="chip"><i class="bi bi-cash-stack"></i> Cheque</span></td>
-                <td>02 Jan 2026</td><td>Ravi Kumar</td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span>Payment History</span>
+          <div class="d-flex gap-2 align-items-center">
+            <select class="form-select form-select-sm" id="filterMethod" style="width:auto;" onchange="loadPayments(1)">
+              <option value="">All payment methods</option>
+              <option value="bank_transfer">Bank Transfer</option>
+              <option value="upi">UPI</option>
+              <option value="card">Card</option>
+              <option value="cash">Cash</option>
+              <option value="cheque">Cheque</option>
+              <option value="other">Other</option>
+            </select>
+            <div class="input-group input-group-sm" style="width:220px;">
+              <input type="text" class="form-control" placeholder="Search payment..." id="pmtSearchInput" onkeyup="if(event.key==='Enter') loadPayments(1)">
+              <button class="btn btn-outline-secondary" type="button" onclick="loadPayments(1)"><i class="bi bi-search"></i></button>
+            </div>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-modern mb-0" id="paymentTable">
+              <thead><tr><th>Payment #</th><th>Invoice #</th><th>Customer</th><th>Amount</th><th>Method</th><th>Reference</th><th>Date</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+              <tbody id="paymentTableBody">
+                <tr><td colspan="9" class="text-center py-4 text-muted">Loading payments...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-footer d-flex justify-content-between align-items-center bg-transparent py-2 px-3 border-top">
+          <div class="text-muted small" id="pmtPaginationInfo">Showing 0 of 0 entries</div>
+          <div id="pmtPaginationControls"></div>
         </div>
       </div>
     </div>
   </main>
 </div>
 
+<!-- Record Payment Modal -->
 <div class="modal fade" id="paymentModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header"><h5 class="modal-title">Record Payment</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
-      <!-- BACKEND NOTE: POST api/payments.php — updates linked invoice status (paid/partial) -->
-      <form>
+      <form id="paymentForm">
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label">Invoice *</label>
-            <select class="form-select">
-              <option>INV-2211 — Sunrise Retail (Balance ₹34,250)</option>
-              <option>INV-2208 — Urban Tech (Balance ₹95,000)</option>
-              <option>INV-2202 — Nova Motors (Balance ₹1,25,000)</option>
+            <label class="form-label">Select Invoice *</label>
+            <select class="form-select" id="pmt_invoice_id" required onchange="onInvoiceSelectChange()">
+              <option value="">Loading unpaid invoices...</option>
             </select>
           </div>
           <div class="row">
-            <div class="col-md-6 mb-3"><label class="form-label">Amount (₹) *</label><input type="number" class="form-control" placeholder="34250"></div>
-            <div class="col-md-6 mb-3"><label class="form-label">Date *</label><input type="date" class="form-control"></div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Amount (₹) *</label>
+              <input type="number" step="0.01" class="form-control" id="pmt_amount" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Payment Date *</label>
+              <input type="date" class="form-control" id="pmt_date" required>
+            </div>
           </div>
           <div class="mb-3">
             <label class="form-label">Payment Method *</label>
-            <select class="form-select"><option>Bank Transfer</option><option>UPI</option><option>Cheque</option><option>Cash</option><option>Card</option></select>
+            <select class="form-select" id="pmt_method" required>
+              <option value="bank_transfer">Bank Transfer</option>
+              <option value="upi">UPI</option>
+              <option value="card">Card</option>
+              <option value="cash">Cash</option>
+              <option value="cheque">Cheque</option>
+              <option value="other">Other</option>
+            </select>
           </div>
-          <div class="mb-1"><label class="form-label">Reference / Transaction ID</label><input type="text" class="form-control"></div>
+          <div class="mb-3">
+            <label class="form-label">Reference / Transaction ID</label>
+            <input type="text" class="form-control" id="pmt_reference" placeholder="TXN123456">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Notes</label>
+            <textarea class="form-control" id="pmt_notes" rows="2"></textarea>
+          </div>
+          <div class="alert alert-danger py-2 mt-3" style="display:none;font-size:12.5px;" id="pmt_error"></div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline-soft" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save Payment</button>
+          <button type="submit" class="btn btn-primary" id="pmt_submit_btn">Save Payment</button>
         </div>
       </form>
     </div>
   </div>
 </div>
 
+<!-- SEND PAYMENT RECEIPT MODAL -->
+<div class="modal fade" id="sendPaymentEmailModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="sendPaymentEmailModalTitle"><i class="bi bi-envelope me-2"></i>Send Payment Receipt</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="email_pmt_id">
+        <div class="alert alert-info py-2 small mb-3">
+          <i class="bi bi-info-circle me-1"></i> Payment confirmation will be sent to the recipient.
+        </div>
+        <div class="mb-3">
+          <label class="form-label text-muted small fw-semibold">Recipient Email *</label>
+          <input type="email" id="email_pmt_recipient_email" class="form-control" placeholder="customer@example.com" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label text-muted small fw-semibold">Recipient Name</label>
+          <input type="text" id="email_pmt_recipient_name" class="form-control" placeholder="Contact Person Name">
+        </div>
+        <div id="emailPmtAlert" class="d-none alert py-2 small"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-soft" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" id="btnSendPmtSubmit" class="btn btn-primary" onclick="submitSendPaymentEmail()">
+          <span id="btnSendPmtSpinner" class="spinner-border spinner-border-sm me-1 d-none"></span>
+          <i class="bi bi-send me-1" id="btnSendPmtIcon"></i> <span id="btnSendPmtText">Send Receipt</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+<script src="assets/js/api.js"></script>
 <script src="assets/js/layout.js"></script>
 <script src="assets/js/script.js"></script>
+<script>
+  let paymentsList = [];
+  let unpaidInvoicesList = [];
+  let currentPage = 1;
+  const pageLimit = 20;
+
+  function formatCurrency(amt) {
+    return '₹' + Number(amt || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  async function loadPayments(page = 1) {
+    currentPage = page;
+    const tbody = document.getElementById('paymentTableBody');
+    const method = document.getElementById('filterMethod').value;
+    const search = document.getElementById('pmtSearchInput').value.trim();
+
+    try {
+      let params = new URLSearchParams({ page: currentPage, limit: pageLimit });
+      if (method) params.append('payment_method', method);
+      if (search) params.append('search', search);
+
+      const res = await window.api.get(`/payments.php?${params.toString()}`);
+      if (!res || !res.success) return;
+
+      paymentsList = res.data || [];
+      const pagination = res.pagination || { page: 1, limit: pageLimit, total: paymentsList.length, total_pages: 1 };
+
+      // Fetch overview summary stats from dashboard endpoint
+      loadPaymentStats();
+
+      if (paymentsList.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted">No payments recorded.</td></tr>`;
+        document.getElementById('pmtPaginationInfo').textContent = 'Showing 0 of 0 entries';
+        document.getElementById('pmtPaginationControls').innerHTML = '';
+        return;
+      }
+
+      tbody.innerHTML = paymentsList.map(p => {
+        const initials = (p.customer ? p.customer.company_name : 'CU').split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+        const badgeClass = p.status === 'completed' ? 'st-active' : 'st-pending';
+
+        return `
+          <tr>
+            <td class="fw-semibold">PMT-${p.id}</td>
+            <td class="fw-semibold text-primary">${p.invoice_number}</td>
+            <td class="d-flex align-items-center gap-2">
+              <div class="row-avatar">${initials}</div>
+              <div>${p.customer ? p.customer.company_name : 'N/A'}</div>
+            </td>
+            <td class="fw-semibold text-success">${formatCurrency(p.amount)}</td>
+            <td><span class="chip"><i class="bi bi-credit-card me-1"></i> ${p.payment_method}</span></td>
+            <td>${p.reference_number || '-'}</td>
+            <td>${p.payment_date || '-'}</td>
+            <td><span class="badge-status ${badgeClass}">${p.status || 'completed'}</span></td>
+            <td class="text-end">
+              <button class="action-icon text-info me-1" title="Send Receipt" onclick="openSendPaymentEmailModal(${p.id}, '${p.invoice_number}', '${p.customer ? (p.customer.email || '') : ''}', '${p.customer ? (p.customer.contact_person || p.customer.company_name || '') : ''}')"><i class="bi bi-envelope"></i></button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      // Update Pagination Info
+      const startRecord = (pagination.page - 1) * pagination.limit + 1;
+      const endRecord = Math.min(pagination.page * pagination.limit, pagination.total);
+      document.getElementById('pmtPaginationInfo').textContent = `Showing ${startRecord}–${endRecord} of ${pagination.total} entries`;
+
+      // Render Pagination Buttons
+      let paginationHtml = `<ul class="pagination pagination-sm mb-0">`;
+      paginationHtml += `<li class="page-item ${pagination.page <= 1 ? 'disabled' : ''}">
+        <button class="page-link" onclick="loadPayments(${pagination.page - 1})">Previous</button>
+      </li>`;
+
+      for (let i = 1; i <= pagination.total_pages; i++) {
+        paginationHtml += `<li class="page-item ${i === pagination.page ? 'active' : ''}">
+          <button class="page-link" onclick="loadPayments(${i})">${i}</button>
+        </li>`;
+      }
+
+      paginationHtml += `<li class="page-item ${pagination.page >= pagination.total_pages ? 'disabled' : ''}">
+        <button class="page-link" onclick="loadPayments(${pagination.page + 1})">Next</button>
+      </li></ul>`;
+
+      document.getElementById('pmtPaginationControls').innerHTML = paginationHtml;
+
+    } catch (err) {
+      tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-danger">Failed to load payments: ${err.message}</td></tr>`;
+    }
+  }
+
+  function openSendPaymentEmailModal(id, invNum, email, name) {
+    document.getElementById('email_pmt_id').value = id;
+    document.getElementById('sendPaymentEmailModalTitle').innerHTML = `<i class="bi bi-envelope me-2"></i>Send Receipt — ${invNum}`;
+    document.getElementById('email_pmt_recipient_email').value = email || '';
+    document.getElementById('email_pmt_recipient_name').value = name || '';
+
+    const alertEl = document.getElementById('emailPmtAlert');
+    alertEl.className = 'd-none alert py-2 small';
+    alertEl.textContent = '';
+
+    const submitBtn = document.getElementById('btnSendPmtSubmit');
+    submitBtn.disabled = false;
+    document.getElementById('btnSendPmtSpinner').classList.add('d-none');
+    document.getElementById('btnSendPmtIcon').classList.remove('d-none');
+    document.getElementById('btnSendPmtText').textContent = 'Send Receipt';
+
+    new bootstrap.Modal(document.getElementById('sendPaymentEmailModal')).show();
+  }
+
+  async function submitSendPaymentEmail() {
+    const id = parseInt(document.getElementById('email_pmt_id').value, 10);
+    const email = document.getElementById('email_pmt_recipient_email').value.trim();
+    const name = document.getElementById('email_pmt_recipient_name').value.trim();
+
+    const alertEl = document.getElementById('emailPmtAlert');
+    alertEl.className = 'd-none alert py-2 small';
+
+    if (!email) {
+      alertEl.className = 'alert alert-danger py-2 small mb-3';
+      alertEl.textContent = 'Customer email address is not available. Please enter a recipient email.';
+      return;
+    }
+
+    const submitBtn = document.getElementById('btnSendPmtSubmit');
+    const spinner = document.getElementById('btnSendPmtSpinner');
+    const icon = document.getElementById('btnSendPmtIcon');
+    const btnText = document.getElementById('btnSendPmtText');
+
+    submitBtn.disabled = true;
+    spinner.classList.remove('d-none');
+    icon.classList.add('d-none');
+    btnText.textContent = 'Sending...';
+
+    try {
+      const res = await window.api.sendPaymentEmail(id, email, name);
+      if (res && res.success) {
+        alertEl.className = 'alert alert-success py-2 small mb-3';
+        alertEl.textContent = 'Payment receipt email sent successfully.';
+        setTimeout(() => {
+          const modalInst = bootstrap.Modal.getInstance(document.getElementById('sendPaymentEmailModal'));
+          if (modalInst) modalInst.hide();
+        }, 1500);
+      } else {
+        alertEl.className = 'alert alert-danger py-2 small mb-3';
+        alertEl.textContent = (res && res.message) ? res.message : 'Unable to send email.';
+        submitBtn.disabled = false;
+        spinner.classList.add('d-none');
+        icon.classList.remove('d-none');
+        btnText.textContent = 'Send Receipt';
+      }
+    } catch (err) {
+      alertEl.className = 'alert alert-danger py-2 small mb-3';
+      alertEl.textContent = err.message || 'Unable to send email.';
+      submitBtn.disabled = false;
+      spinner.classList.add('d-none');
+      icon.classList.remove('d-none');
+      btnText.textContent = 'Send Receipt';
+    }
+  }
+
+  async function loadPaymentStats() {
+    try {
+      const res = await window.api.get('/payments.php?action=summary');
+      if (res && res.success && res.data) {
+        document.getElementById('statTotalPayments').textContent = formatCurrency(res.data.total_amount_collected);
+        document.getElementById('statTodayPayments').textContent = formatCurrency(res.data.today_amount_collected);
+        document.getElementById('statThisMonthPayments').textContent = formatCurrency(res.data.this_month_amount_collected);
+      }
+    } catch (err) {
+      console.error('Failed to load payment stats:', err);
+    }
+  }
+
+  async function loadUnpaidInvoices() {
+    try {
+      const res = await window.api.get('/invoices.php?limit=100');
+      if (!res || !res.success) return;
+
+      unpaidInvoicesList = (res.data || []).filter(i => i.status !== 'paid' && i.status !== 'cancelled' && i.balance_amount > 0);
+
+      const invSelect = document.getElementById('pmt_invoice_id');
+      if (unpaidInvoicesList.length === 0) {
+        invSelect.innerHTML = '<option value="">No unpaid invoices available</option>';
+      } else {
+        invSelect.innerHTML = '<option value="">Select an invoice...</option>' +
+          unpaidInvoicesList.map(i => `<option value="${i.id}">${i.invoice_number} — ${i.customer ? i.customer.company_name : 'Customer'} (Balance: ${formatCurrency(i.balance_amount)})</option>`).join('');
+      }
+
+      // Pre-select if URL has invoice_id
+      const targetInvId = new URLSearchParams(window.location.search).get('invoice_id');
+      if (targetInvId) {
+        invSelect.value = targetInvId;
+        onInvoiceSelectChange();
+        new bootstrap.Modal(document.getElementById('paymentModal')).show();
+      }
+    } catch (err) {
+      console.error('Failed to load unpaid invoices:', err);
+    }
+  }
+
+  function onInvoiceSelectChange() {
+    const invId = parseInt(document.getElementById('pmt_invoice_id').value);
+    const target = unpaidInvoicesList.find(i => i.id === invId);
+    if (target) {
+      document.getElementById('pmt_amount').value = target.balance_amount;
+    }
+  }
+
+  function openNewPayment() {
+    document.getElementById('paymentForm').reset();
+    document.getElementById('pmt_date').value = new Date().toISOString().split('T')[0];
+    document.getElementById('pmt_error').style.display = 'none';
+    loadUnpaidInvoices();
+  }
+
+  document.getElementById('paymentForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const errEl = document.getElementById('pmt_error');
+    const submitBtn = document.getElementById('pmt_submit_btn');
+
+    errEl.style.display = 'none';
+
+    const payload = {
+      invoice_id: parseInt(document.getElementById('pmt_invoice_id').value),
+      amount: parseFloat(document.getElementById('pmt_amount').value),
+      payment_date: document.getElementById('pmt_date').value,
+      payment_method: document.getElementById('pmt_method').value,
+      reference_number: document.getElementById('pmt_reference').value.trim() || null,
+      notes: document.getElementById('pmt_notes').value.trim() || null
+    };
+
+    if (!payload.invoice_id || !payload.amount || payload.amount <= 0) {
+      errEl.textContent = 'Valid invoice and positive amount are required.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    submitBtn.disabled = true;
+
+    try {
+      const res = await window.api.post('/payments.php', payload);
+      if (res && res.success) {
+        const modalEl = document.getElementById('paymentModal');
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        if (modalInstance) modalInstance.hide();
+        loadPayments(1);
+        loadUnpaidInvoices();
+      } else {
+        errEl.textContent = (res && res.message) ? res.message : 'Record payment failed.';
+        errEl.style.display = 'block';
+      }
+    } catch (err) {
+      errEl.textContent = err.message || 'Error recording payment.';
+      errEl.style.display = 'block';
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadPayments(1);
+    loadUnpaidInvoices();
+  });
+</script>
 </body>
 </html>
