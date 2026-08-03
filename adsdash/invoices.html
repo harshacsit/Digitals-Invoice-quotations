@@ -163,9 +163,9 @@
             <td><span class="badge-status ${badgeClass}">${inv.status}</span></td>
             <td class="text-end">
               <button class="action-icon me-1" title="View Details" onclick="viewInvoiceDetails(${inv.id})"><i class="bi bi-eye"></i></button>
-              <a href="/adsdash/api/invoice-pdf.php?id=${inv.id}" target="_blank" class="action-icon me-1 text-primary" title="View PDF"><i class="bi bi-file-earmark-pdf"></i></a>
-              <a href="/adsdash/api/invoice-pdf.php?id=${inv.id}&download=1" class="action-icon me-1 text-dark" title="Download PDF"><i class="bi bi-download"></i></a>
-              <a href="/adsdash/api/invoice-pdf.php?id=${inv.id}" target="_blank" class="action-icon me-1 text-secondary" title="Print PDF"><i class="bi bi-printer"></i></a>
+              <a href="api/invoice-pdf.php?id=${inv.id}" target="_blank" class="action-icon me-1 text-primary" title="View PDF"><i class="bi bi-file-earmark-pdf"></i></a>
+              <a href="api/invoice-pdf.php?id=${inv.id}&download=1" class="action-icon me-1 text-dark" title="Download PDF"><i class="bi bi-download"></i></a>
+              <a href="api/invoice-pdf.php?id=${inv.id}" target="_blank" class="action-icon me-1 text-secondary" title="Print PDF"><i class="bi bi-printer"></i></a>
               <button class="action-icon me-1 text-info" title="Send Email" onclick="openSendInvoiceEmailModal(${inv.id}, '${inv.invoice_number}', '${inv.customer ? (inv.customer.email || '') : ''}', '${inv.customer ? (inv.customer.contact_person || inv.customer.company_name || '') : ''}')"><i class="bi bi-envelope"></i></button>
               ${(inv.status !== 'paid' && inv.status !== 'cancelled') ? `
                 <a href="payments.html?invoice_id=${inv.id}" class="action-icon me-1" title="Record payment"><i class="bi bi-credit-card"></i></a>
@@ -243,8 +243,8 @@
 
       footerEl.innerHTML = `
         <button class="btn btn-outline-soft" data-bs-dismiss="modal">Close</button>
-        <a href="/adsdash/api/invoice-pdf.php?id=${inv.id}" target="_blank" class="btn btn-outline-primary"><i class="bi bi-file-earmark-pdf me-1"></i> View PDF</a>
-        <a href="/adsdash/api/invoice-pdf.php?id=${inv.id}&download=1" class="btn btn-primary"><i class="bi bi-download me-1"></i> Download PDF</a>
+        <a href="api/invoice-pdf.php?id=${inv.id}" target="_blank" class="btn btn-outline-primary"><i class="bi bi-file-earmark-pdf me-1"></i> View PDF</a>
+        <a href="api/invoice-pdf.php?id=${inv.id}&download=1" class="btn btn-primary"><i class="bi bi-download me-1"></i> Download PDF</a>
         ${(inv.status !== 'paid' && inv.status !== 'cancelled') ? `
           <a href="payments.html?invoice_id=${inv.id}" class="btn btn-success"><i class="bi bi-credit-card me-1"></i> Record Payment</a>
         ` : ''}

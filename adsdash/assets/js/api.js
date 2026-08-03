@@ -4,8 +4,12 @@
    ============================================================ */
 
 const API_CONFIG = {
-  // Base URL pointing to AdsDash PHP API directory
-  API_BASE_URL: '/adsdash/api',
+  // Base URL pointing to AdsDash PHP API directory (auto-detect root vs subfolder deployment)
+  API_BASE_URL: (function() {
+    const path = window.location.pathname;
+    const dir = path.substring(0, path.lastIndexOf('/'));
+    return dir ? `${dir}/api` : '/api';
+  })(),
 };
 
 /**

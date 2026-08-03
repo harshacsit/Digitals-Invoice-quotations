@@ -284,9 +284,9 @@
             <td><span class="badge-status ${badgeClass}">${q.status}</span></td>
             <td class="text-end">
               <button class="action-icon me-1" title="View Details" onclick="viewQuotationDetails(${q.id})"><i class="bi bi-eye"></i></button>
-              <a href="/adsdash/api/quotation-pdf.php?id=${q.id}" target="_blank" class="action-icon me-1 text-primary" title="View PDF"><i class="bi bi-file-earmark-pdf"></i></a>
-              <a href="/adsdash/api/quotation-pdf.php?id=${q.id}&download=1" class="action-icon me-1 text-dark" title="Download PDF"><i class="bi bi-download"></i></a>
-              <a href="/adsdash/api/quotation-pdf.php?id=${q.id}" target="_blank" class="action-icon me-1 text-secondary" title="Print PDF"><i class="bi bi-printer"></i></a>
+              <a href="api/quotation-pdf.php?id=${q.id}" target="_blank" class="action-icon me-1 text-primary" title="View PDF"><i class="bi bi-file-earmark-pdf"></i></a>
+              <a href="api/quotation-pdf.php?id=${q.id}&download=1" class="action-icon me-1 text-dark" title="Download PDF"><i class="bi bi-download"></i></a>
+              <a href="api/quotation-pdf.php?id=${q.id}" target="_blank" class="action-icon me-1 text-secondary" title="Print PDF"><i class="bi bi-printer"></i></a>
               <button class="action-icon me-1 text-info" title="Send Email" onclick="openSendQuotationEmailModal(${q.id}, '${q.quotation_number}', '${q.customer ? (q.customer.email || '') : ''}', '${q.customer ? (q.customer.contact_person || q.customer.company_name || '') : ''}')"><i class="bi bi-envelope"></i></button>
               ${q.status === 'pending_approval' ? `
                 <button class="action-icon text-success me-1 manager-only" title="Approve Quotation" onclick="approveQuotation(${q.id}, '${q.quotation_number}')"><i class="bi bi-check-lg"></i></button>
@@ -635,8 +635,8 @@
 
       document.getElementById('previewModalFooter').innerHTML = `
         <button class="btn btn-outline-soft" data-bs-dismiss="modal">Close</button>
-        <a href="/adsdash/api/quotation-pdf.php?id=${q.id}" target="_blank" class="btn btn-outline-primary"><i class="bi bi-file-earmark-pdf me-1"></i> View PDF</a>
-        <a href="/adsdash/api/quotation-pdf.php?id=${q.id}&download=1" class="btn btn-primary"><i class="bi bi-download me-1"></i> Download PDF</a>
+        <a href="api/quotation-pdf.php?id=${q.id}" target="_blank" class="btn btn-outline-primary"><i class="bi bi-file-earmark-pdf me-1"></i> View PDF</a>
+        <a href="api/quotation-pdf.php?id=${q.id}&download=1" class="btn btn-primary"><i class="bi bi-download me-1"></i> Download PDF</a>
       `;
 
       new bootstrap.Modal(modalEl).show();
