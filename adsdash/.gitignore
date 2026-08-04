@@ -1,6 +1,0 @@
-.env
-vendor/
-composer.phar
-storage/locks/*
-storage/logs/*
-!.gitignore
