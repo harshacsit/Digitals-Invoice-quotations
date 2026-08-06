@@ -133,6 +133,12 @@ class EmailRetryService
                 );
             }
 
+            if (!empty($result['success'])) {
+                $updSentStmt = $this->pdo->prepare("UPDATE email_logs SET status = 'sent', sent_at = CURRENT_TIMESTAMP WHERE id = :id");
+                $updSentStmt->bindValue(':id', $logId, PDO::PARAM_INT);
+                $updSentStmt->execute();
+            }
+
             return $result;
 
         } catch (Throwable $e) {
