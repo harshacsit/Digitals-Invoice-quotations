@@ -5,7 +5,7 @@ declare(strict_types=1);
 $host = '127.0.0.1';
 $dbname = 'adsdash';
 $username = 'root';
-$password = 'Harsha';
+$password = getenv('DB_PASSWORD') !== false ? getenv('DB_PASSWORD') : '';
 
 try {
     $pdo = new PDO(
