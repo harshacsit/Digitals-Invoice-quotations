@@ -29,6 +29,7 @@ $dbname = getenv('DB_NAME') ?: 'adsdash';
 $username = getenv('DB_USER') ?: 'root';
 $password = getenv('DB_PASS') !== false ? getenv('DB_PASS') : 'Harsha';
 
+
 try {
     $pdo = new PDO(
         "mysql:host={$host};dbname={$dbname};charset=utf8mb4",
