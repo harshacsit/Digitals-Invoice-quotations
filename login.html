@@ -9,6 +9,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 <link rel="stylesheet" href="assets/css/style.css">
+<script src="assets/js/api.js"></script>
 </head>
 <body>
 
@@ -51,7 +52,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/api.js"></script>
 <script>
   document.getElementById('loginForm').addEventListener('submit', async function (e) {
     e.preventDefault();
@@ -76,7 +76,7 @@
       if (res && res.success) {
         const params = new URLSearchParams(window.location.search);
         const redirect = params.get('redirect');
-        window.location.href = redirect ? decodeURIComponent(redirect) : 'index.html';
+        window.location.href = redirect ? decodeURIComponent(redirect) : 'dashboard.html';
       } else {
         errEl.textContent = (res && res.message) ? res.message : 'Invalid email or password.';
         errEl.style.display = 'block';

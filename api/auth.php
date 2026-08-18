@@ -25,6 +25,7 @@ try {
             handleLogout();
             break;
 
+        case 'check':
         case 'me':
             if ($method !== 'GET') {
                 sendErrorResponse('Method Not Allowed', 405);

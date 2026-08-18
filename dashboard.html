@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard · Bhimavaram Digitals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>body { visibility: hidden !important; }</style>
+<script src="assets/js/api.js"></script>
+</head>
+<body data-page="dashboard" style="visibility: hidden;">
+
+<div class="app-shell">
+  <div id="sidebar-placeholder"></div>
+
+  <main class="main">
+    <div id="topbar-placeholder"></div>
+
+    <div class="page">
+      <div class="page-head">
+        <div>
+          <div class="crumb">Bhimavaram Digitals <span class="breadcrumb-sep">/</span> Overview</div>
+          <h1>Dashboard</h1>
+        </div>
+      </div>
+
+      <!-- Stat cards -->
+      <div class="row g-3 mb-3">
+        <div class="col-sm-6 col-xl-3">
+          <div class="stat-card">
+            <div class="stat-top">
+              <div class="icon-wrap"><i class="bi bi-currency-rupee"></i></div>
+            </div>
+            <div class="stat-value" id="statRevenueThisMonth">₹0.00</div>
+            <div class="stat-label">Revenue this month</div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+          <div class="stat-card c-blue">
+            <div class="stat-top">
+              <div class="icon-wrap"><i class="bi bi-file-earmark-text-fill"></i></div>
+            </div>
+            <div class="stat-value" id="statPendingQuotations">0</div>
+            <div class="stat-label">Quotations pending approval</div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+          <div class="stat-card c-green">
+            <div class="stat-top">
+              <div class="icon-wrap"><i class="bi bi-receipt"></i></div>
+            </div>
+            <div class="stat-value" id="statOutstandingInvoices">₹0.00</div>
+            <div class="stat-label">Outstanding invoices</div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+          <div class="stat-card c-purple">
+            <div class="stat-top">
+              <div class="icon-wrap"><i class="bi bi-display"></i></div>
+            </div>
+            <div class="stat-value" id="statScreensBooked">0 / 0</div>
+            <div class="stat-label">Screens currently booked</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-3">
+        <div class="col-lg-8">
+          <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <span>Revenue & Invoiced Trend (last 6 months)</span>
+            </div>
+            <div class="card-body"><canvas id="revenueChart" height="110"></canvas></div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="card h-100">
+            <div class="card-header">Quotation Status Breakdown</div>
+            <div class="card-body d-flex flex-column align-items-center">
+              <canvas id="funnelChart" height="180"></canvas>
+              <div class="w-100 mt-3" id="quotationStatusLegend">
+                <div class="d-flex justify-content-between small mb-1"><span><i class="bi bi-circle-fill me-1" style="font-size:8px;color:#3B82F6;"></i>Pending Approval</span><span id="cntPending">0</span></div>
+                <div class="d-flex justify-content-between small mb-1"><span><i class="bi bi-circle-fill me-1" style="font-size:8px;color:#10B981;"></i>Approved</span><span id="cntApproved">0</span></div>
+                <div class="d-flex justify-content-between small mb-1"><span><i class="bi bi-circle-fill me-1" style="font-size:8px;color:#6366F1;"></i>Converted</span><span id="cntConverted">0</span></div>
+                <div class="d-flex justify-content-between small"><span><i class="bi bi-circle-fill me-1" style="font-size:8px;color:#EF4444;"></i>Rejected</span><span id="cntRejected">0</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-lg-7">
+          <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <span>Recent Quotations</span>
+              <a href="quotations.html" class="text-decoration-none small">View all <i class="bi bi-arrow-right"></i></a>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-modern mb-0">
+                <thead><tr><th>Quote #</th><th>Customer</th><th>Amount</th><th>Status</th></tr></thead>
+                <tbody id="recentQuotationsBody">
+                  <tr><td colspan="4" class="text-center py-3 text-muted">Loading recent quotations...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-5">
+          <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <span>Overdue & Unpaid Invoices</span>
+              <a href="invoices.html" class="text-decoration-none small">View all <i class="bi bi-arrow-right"></i></a>
+            </div>
+            <div class="card-body pt-2" id="paymentsDueList">
+              <div class="text-center py-3 text-muted">Loading payments due...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="assets/js/layout.js"></script>
+<script src="assets/js/script.js"></script>
+<script>
+  let revenueChartInstance = null;
+  let funnelChartInstance = null;
+
+  function formatCurrency(amt) {
+    return '₹' + Number(amt || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  async function loadDashboardData() {
+    try {
+      const res = await window.api.get('/dashboard.php');
+      if (!res || !res.success || !res.data) return;
+
+      const data = res.data;
+
+      // 1. Stat Cards
+      document.getElementById('statRevenueThisMonth').textContent = formatCurrency(data.payments ? data.payments.this_month_payments : 0);
+      document.getElementById('statPendingQuotations').textContent = data.quotations ? data.quotations.pending_approval : 0;
+      document.getElementById('statOutstandingInvoices').textContent = formatCurrency(data.revenue ? data.revenue.total_outstanding : 0);
+      
+      const booked = data.screens ? data.screens.currently_booked : 0;
+      const totalScreens = data.screens ? data.screens.total : 0;
+      document.getElementById('statScreensBooked').textContent = `${booked} / ${totalScreens}`;
+
+      // 2. Quotation Status Funnel
+      const qPending = data.quotations ? data.quotations.pending_approval : 0;
+      const qApproved = data.quotations ? data.quotations.approved : 0;
+      const qConverted = data.quotations ? data.quotations.converted : 0;
+      const qRejected = data.quotations ? data.quotations.rejected : 0;
+
+      document.getElementById('cntPending').textContent = qPending;
+      document.getElementById('cntApproved').textContent = qApproved;
+      document.getElementById('cntConverted').textContent = qConverted;
+      document.getElementById('cntRejected').textContent = qRejected;
+
+      if (funnelChartInstance) funnelChartInstance.destroy();
+      funnelChartInstance = new Chart(document.getElementById('funnelChart'), {
+        type: 'doughnut',
+        data: {
+          labels: ['Pending','Approved','Converted','Rejected'],
+          datasets: [{ data: [qPending, qApproved, qConverted, qRejected], backgroundColor: ['#3B82F6','#10B981','#6366F1','#EF4444'], borderWidth:0 }]
+        },
+        options: { plugins: { legend: { display: false } }, cutout: '70%' }
+      });
+
+      // 3. Recent Quotations Table
+      const recentQBody = document.getElementById('recentQuotationsBody');
+      const recentQuotes = (data.recent_activity && data.recent_activity.recent_quotations) ? data.recent_activity.recent_quotations : [];
+
+      if (recentQuotes.length === 0) {
+        recentQBody.innerHTML = `<tr><td colspan="4" class="text-center py-3 text-muted">No recent quotations found.</td></tr>`;
+      } else {
+        recentQBody.innerHTML = recentQuotes.map(q => {
+          let badgeClass = 'st-pending';
+          if (q.status === 'approved') badgeClass = 'st-approved';
+          if (q.status === 'converted') badgeClass = 'st-converted';
+          if (q.status === 'rejected') badgeClass = 'st-rejected';
+
+          const initials = (q.customer_name || 'CU').split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+
+          return `
+            <tr>
+              <td><a href="quotations.html?id=${q.id}" class="text-decoration-none fw-semibold">${q.quotation_number}</a></td>
+              <td class="d-flex align-items-center gap-2"><div class="row-avatar">${initials}</div>${q.customer_name}</td>
+              <td>${formatCurrency(q.total_amount)}</td>
+              <td><span class="badge-status ${badgeClass}">${q.status}</span></td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // 4. Fetch Revenue Trend Chart Data
+      loadRevenueTrend();
+
+      // 5. Fetch Alerts / Overdue Invoices
+      loadDashboardAlerts();
+
+    } catch (err) {
+      console.error('Failed to load dashboard data:', err);
+    }
+  }
+
+  async function loadRevenueTrend() {
+    try {
+      const res = await window.api.get('/dashboard.php?action=revenue_trend&months=6');
+      if (!res || !res.success || !res.data) return;
+
+      const trendData = res.data;
+      const labels = trendData.map(t => t.month);
+      const invoicedSeries = trendData.map(t => t.invoiced);
+      const paidSeries = trendData.map(t => t.paid);
+
+      if (revenueChartInstance) revenueChartInstance.destroy();
+      revenueChartInstance = new Chart(document.getElementById('revenueChart'), {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            { label: 'Paid Revenue (₹)', data: paidSeries, backgroundColor: '#2563EB', borderRadius: 6, barPercentage: 0.55 },
+            { label: 'Total Invoiced (₹)', data: invoicedSeries, type: 'line', borderColor: '#3B82F6', backgroundColor: '#3B82F6', tension: 0.35 }
+          ]
+        },
+        options: {
+          responsive: true,
+          scales: { y: { grid: { color: '#F0F1F6' } } },
+          plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } }
+        }
+      });
+    } catch (err) {
+      console.error('Failed to load revenue trend chart:', err);
+    }
+  }
+
+  async function loadDashboardAlerts() {
+    const listEl = document.getElementById('paymentsDueList');
+    try {
+      const res = await window.api.get('/dashboard.php?action=alerts');
+      if (!res || !res.success || !res.data) return;
+
+      const overdue = res.data.overdue_invoices || [];
+      const unpaid = res.data.unpaid_invoices || [];
+      const combined = [...overdue, ...unpaid].slice(0, 5);
+
+      if (combined.length === 0) {
+        listEl.innerHTML = `<div class="text-center py-3 text-muted">No pending or overdue payments!</div>`;
+        return;
+      }
+
+      listEl.innerHTML = combined.map(inv => {
+        const isOverdue = inv.due_date && new Date(inv.due_date) < new Date();
+        const amtClass = isOverdue ? 'text-danger' : '';
+        const dueText = isOverdue ? `Overdue (${inv.due_date})` : `Due ${inv.due_date || 'N/A'}`;
+
+        return `
+          <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+            <div>
+              <div class="fw-semibold" style="font-size:13.5px;">${inv.customer_name}</div>
+              <div class="text-muted" style="font-size:12px;">${inv.invoice_number} · ${dueText}</div>
+            </div>
+            <div class="fw-semibold ${amtClass}">${formatCurrency(inv.balance_amount || inv.total_amount)}</div>
+          </div>
+        `;
+      }).join('');
+    } catch (err) {
+      listEl.innerHTML = `<div class="text-center py-3 text-muted">Failed to load payments due.</div>`;
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', loadDashboardData);
+</script>
+</body>
+</html>
