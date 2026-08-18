@@ -3,14 +3,40 @@
    Centralized API Client for Backend PHP Integration
    ============================================================ */
 
+// Production PHP backend URL — update this when your PHP backend is deployed live
+const PRODUCTION_API_URL = 'https://YOUR-BACKEND-DOMAIN/api';
+
 const API_CONFIG = {
-  // Base URL pointing to AdsDash PHP API directory (auto-detect root vs subfolder deployment)
+  PRODUCTION_API_URL,
+
+  // Base URL pointing to AdsDash PHP API directory
+  // Automatically detects local development (XAMPP / CLI server) vs production (e.g. Vercel)
   API_BASE_URL: (function() {
-    const path = window.location.pathname;
-    const dir = path.substring(0, path.lastIndexOf('/'));
-    return dir ? `${dir}/api` : '/api';
+    if (window.ADSDASH_API_URL) {
+      return window.ADSDASH_API_URL;
+    }
+    const hostname = window.location.hostname;
+    const isLocal = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '';
+    if (isLocal) {
+      const path = window.location.pathname;
+      const dir = path.substring(0, path.lastIndexOf('/'));
+      return dir ? `${dir}/api` : '/api';
+    }
+    return PRODUCTION_API_URL;
   })(),
 };
+
+/**
+ * Helper to construct fully qualified API endpoints
+ */
+function getApiUrl(endpoint) {
+  if (!endpoint) return API_CONFIG.API_BASE_URL;
+  if (endpoint.startsWith('http://') || endpoint.startsWith('https://')) {
+    return endpoint;
+  }
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  return `${API_CONFIG.API_BASE_URL}${cleanEndpoint}`;
+}
 
 /**
  * Core API Request Helper
@@ -73,6 +99,7 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
  * Unified API Client
  */
 const api = {
+  getUrl: getApiUrl,
   get: (endpoint) => apiRequest(endpoint, 'GET'),
   post: (endpoint, data) => apiRequest(endpoint, 'POST', data),
   put: (endpoint, data) => apiRequest(endpoint, 'PUT', data),
@@ -205,5 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Expose globally
+window.API_CONFIG = API_CONFIG;
+window.API_BASE_URL = API_CONFIG.API_BASE_URL;
 window.api = api;
 window.AdsDashAPI = api;

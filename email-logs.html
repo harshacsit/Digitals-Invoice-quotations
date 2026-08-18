@@ -248,7 +248,7 @@
   function exportLogCsv() {
     const from = document.getElementById('filterFromDate').value;
     const to = document.getElementById('filterToDate').value;
-    window.location.href = `api/email.php?action=analytics_export&from=${from}&to=${to}`;
+    window.location.href = window.api.getUrl(`/email.php?action=analytics_export&from=${from}&to=${to}`);
   }
 
   async function loadEmailLogs(page = 1) {

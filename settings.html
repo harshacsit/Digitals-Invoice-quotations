@@ -279,7 +279,7 @@
   /* ─── Load template status from API on page load ─── */
   async function loadTemplateStatus(type) {
     try {
-      const res  = await fetch(`api/settings.php?action=get_template&type=${type}`, { credentials: 'include' });
+      const res  = await fetch(window.api.getUrl(`/settings.php?action=get_template&type=${type}`), { credentials: 'include' });
       const json = await res.json();
       if (!json || !json.success || !json.data) return;
 
@@ -355,7 +355,7 @@
     formData.append('template', store.file, store.file.name);
 
     try {
-      const res  = await fetch('api/settings.php?action=upload_template', {
+      const res  = await fetch(window.api.getUrl('/settings.php?action=upload_template'), {
         method: 'POST',
         body: formData,
         credentials: 'include'
@@ -397,7 +397,7 @@
     clearTemplateAlert(type);
 
     try {
-      const res  = await fetch(`api/settings.php?action=reset_template&type=${type}`, {
+      const res  = await fetch(window.api.getUrl(`/settings.php?action=reset_template&type=${type}`), {
         method: 'POST',
         credentials: 'include'
       });
@@ -422,7 +422,7 @@
 
   /* ─── Preview template ─── */
   function previewTemplate(type) {
-    window.open('api/' + type + '-pdf.php?preview=1', '_blank');
+    window.open(window.api.getUrl('/' + type + '-pdf.php?preview=1'), '_blank');
   }
 
   /* ─── Helpers ─── */
@@ -504,7 +504,7 @@
 
   async function loadSettings() {
     try {
-      const res = await fetch('api/settings.php', { credentials: 'include' });
+      const res = await fetch(window.api.getUrl('/settings.php'), { credentials: 'include' });
       const json = await res.json();
       if (json && json.success && json.data) {
         const data = json.data;
@@ -584,7 +584,7 @@
     }
 
     try {
-      const res = await fetch('api/settings.php', {
+      const res = await fetch(window.api.getUrl('/settings.php'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
