@@ -27,8 +27,7 @@ if (file_exists($envFile)) {
 $host = getenv('DB_HOST') ?: '127.0.0.1';
 $dbname = getenv('DB_NAME') ?: 'adsdash';
 $username = getenv('DB_USER') ?: 'root';
-$password = getenv('DB_PASS') !== false ? getenv('DB_PASS') : 'Harsha';
-
+$password = getenv('DB_PASS') !== false ? getenv('DB_PASS') : '';
 
 try {
     $pdo = new PDO(
@@ -42,5 +41,12 @@ try {
         ]
     );
 } catch (PDOException $e) {
-    die($e->getMessage());
+    error_log("Database Connection Error: " . $e->getMessage());
+    http_response_code(500);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode([
+        'success' => false,
+        'message' => 'Database connection error. Please verify server configuration.'
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    exit;
 }

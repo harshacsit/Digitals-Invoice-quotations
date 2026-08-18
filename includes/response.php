@@ -3,6 +3,32 @@
 declare(strict_types=1);
 
 /**
+ * Automatically handle CORS (Cross-Origin Resource Sharing)
+ */
+function handleCors(): void
+{
+    $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+
+    if ($origin !== '') {
+        header("Access-Control-Allow-Origin: {$origin}");
+        header("Access-Control-Allow-Credentials: true");
+        header("Access-Control-Max-Age: 86400");
+    } else {
+        header("Access-Control-Allow-Origin: *");
+    }
+
+    header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+    header("Access-Control-Allow-Headers: Content-Type, Accept, Authorization, X-Requested-With");
+
+    if (($_SERVER['REQUEST_METHOD'] ?? '') === 'OPTIONS') {
+        http_response_code(200);
+        exit;
+    }
+}
+
+handleCors();
+
+/**
  * Send a standardized JSON response.
  *
  * @param bool $success

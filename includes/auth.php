@@ -11,15 +11,19 @@ require_once __DIR__ . '/response.php';
 function initSession(): void
 {
     if (session_status() === PHP_SESSION_NONE) {
-        // Secure cookie parameters (development on http://localhost -> secure=false)
-        // For production HTTPS environments, change 'secure' => true
+        $isHttps = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ||
+                   (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+        $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+        $host = $_SERVER['HTTP_HOST'] ?? '';
+        $isCrossDomain = ($origin !== '' && parse_url($origin, PHP_URL_HOST) !== $host);
+
         session_set_cookie_params([
             'lifetime' => 0,
             'path' => '/',
             'domain' => '',
-            'secure' => false,
+            'secure' => $isHttps,
             'httponly' => true,
-            'samesite' => 'Lax',
+            'samesite' => ($isHttps && $isCrossDomain) ? 'None' : 'Lax',
         ]);
         session_start();
     }
