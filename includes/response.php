@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+// Prevent HTML error output in production API responses
+ini_set('display_errors', '0');
+ini_set('display_startup_errors', '0');
+error_reporting(E_ALL);
+
 /**
  * Automatically handle CORS (Cross-Origin Resource Sharing)
  */
@@ -9,7 +14,31 @@ function handleCors(): void
 {
     $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 
+    // Allowed origins configuration via ALLOWED_ORIGINS env var or defaults
+    $allowedOriginsRaw = getenv('ALLOWED_ORIGINS') ?: '';
+    $allowedOrigins = $allowedOriginsRaw !== '' 
+        ? array_map('trim', explode(',', $allowedOriginsRaw)) 
+        : [];
+
+    $isAllowed = false;
     if ($origin !== '') {
+        if (!empty($allowedOrigins)) {
+            $isAllowed = in_array($origin, $allowedOrigins, true);
+        } else {
+            // Default matching for Vercel frontend deployments and local dev
+            $isAllowed = (
+                str_ends_with($origin, '.vercel.app') ||
+                str_contains($origin, 'localhost') ||
+                str_contains($origin, '127.0.0.1')
+            );
+        }
+    }
+
+    if ($isAllowed && $origin !== '') {
+        header("Access-Control-Allow-Origin: {$origin}");
+        header("Access-Control-Allow-Credentials: true");
+        header("Access-Control-Max-Age: 86400");
+    } elseif ($origin !== '') {
         header("Access-Control-Allow-Origin: {$origin}");
         header("Access-Control-Allow-Credentials: true");
         header("Access-Control-Max-Age: 86400");
@@ -17,7 +46,7 @@ function handleCors(): void
         header("Access-Control-Allow-Origin: *");
     }
 
-    header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+    header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
     header("Access-Control-Allow-Headers: Content-Type, Accept, Authorization, X-Requested-With");
 
     if (($_SERVER['REQUEST_METHOD'] ?? '') === 'OPTIONS') {

@@ -25,13 +25,15 @@ if (file_exists($envFile)) {
 }
 
 $host = getenv('DB_HOST') ?: '127.0.0.1';
+$port = getenv('DB_PORT') ?: '3306';
 $dbname = getenv('DB_NAME') ?: 'adsdash';
 $username = getenv('DB_USER') ?: 'root';
-$password = getenv('DB_PASS') !== false ? getenv('DB_PASS') : '';
+$password = getenv('DB_PASSWORD') !== false ? getenv('DB_PASSWORD') : (getenv('DB_PASS') !== false ? getenv('DB_PASS') : '');
 
 try {
+    $dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset=utf8mb4";
     $pdo = new PDO(
-        "mysql:host={$host};dbname={$dbname};charset=utf8mb4",
+        $dsn,
         $username,
         $password,
         [
@@ -42,11 +44,13 @@ try {
     );
 } catch (PDOException $e) {
     error_log("Database Connection Error: " . $e->getMessage());
-    http_response_code(500);
-    header('Content-Type: application/json; charset=utf-8');
+    if (!headers_sent()) {
+        http_response_code(500);
+        header('Content-Type: application/json; charset=utf-8');
+    }
     echo json_encode([
         'success' => false,
-        'message' => 'Database connection error. Please verify server configuration.'
+        'message' => 'Database connection error. Please verify server environment configuration.'
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     exit;
 }
