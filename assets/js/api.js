@@ -16,7 +16,7 @@ const API_CONFIG = {
       return window.ADSDASH_API_URL;
     }
     const hostname = window.location.hostname;
-    const isLocal = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '';
+    const isLocal = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '' || hostname.includes('ngrok') || PRODUCTION_API_URL.includes('YOUR-BACKEND-DOMAIN');
     if (isLocal) {
       const path = window.location.pathname;
       const dir = path.substring(0, path.lastIndexOf('/'));
@@ -242,6 +242,7 @@ async function initAuthGuard() {
         sessionStorage.setItem('adsdash_user', JSON.stringify(user));
 
         if (document.body) {
+          document.body.style.setProperty('visibility', 'visible', 'important');
           document.body.style.visibility = 'visible';
         }
         updateUIForUser(user);

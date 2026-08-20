@@ -25,11 +25,12 @@ function handleCors(): void
         if (!empty($allowedOrigins)) {
             $isAllowed = in_array($origin, $allowedOrigins, true);
         } else {
-            // Default matching for Vercel frontend deployments and local dev
+            // Default matching for Vercel frontend deployments, ngrok tunnels, and local dev
             $isAllowed = (
                 str_ends_with($origin, '.vercel.app') ||
                 str_contains($origin, 'localhost') ||
-                str_contains($origin, '127.0.0.1')
+                str_contains($origin, '127.0.0.1') ||
+                str_contains($origin, 'ngrok')
             );
         }
     }
